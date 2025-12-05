@@ -10,20 +10,24 @@ class InvoicesPage extends StatefulWidget {
   const InvoicesPage({super.key});
 
   @override
-  State<InvoicesPage> createState() => _InvoicesPageState();
+  State createState() => _InvoicesPageState();
 }
 
-class _InvoicesPageState extends State<InvoicesPage> {
+class _InvoicesPageState extends State {
   String _search = '';
   InvoiceStatus? _filterStatus;
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Typed provider
     final invoices = context.watch<InvoiceService>().invoices;
+
     final filtered = invoices.where((inv) {
-      final matchesSearch = inv.invoiceNumber.toLowerCase().contains(_search.toLowerCase()) ||
-          inv.clientName.toLowerCase().contains(_search.toLowerCase());
-      final matchesStatus = _filterStatus == null || inv.status == _filterStatus;
+      final matchesSearch =
+          inv.invoiceNumber.toLowerCase().contains(_search.toLowerCase()) ||
+              inv.clientName.toLowerCase().contains(_search.toLowerCase());
+      final matchesStatus =
+          _filterStatus == null || inv.status == _filterStatus;
       return matchesSearch && matchesStatus;
     }).toList();
 
@@ -48,22 +52,39 @@ class _InvoicesPageState extends State<InvoicesPage> {
                   value: _filterStatus,
                   hint: const Text('Status'),
                   items: const [
-                    DropdownMenuItem(value: null, child: Text('All')),
-                    DropdownMenuItem(value: InvoiceStatus.paid, child: Text('Paid')),
-                    DropdownMenuItem(value: InvoiceStatus.unpaid, child: Text('Unpaid')),
-                    DropdownMenuItem(value: InvoiceStatus.partial, child: Text('Partial')),
+                    DropdownMenuItem(
+                      value: null,
+                      child: Text('All'),
+                    ),
+                    DropdownMenuItem(
+                      value: InvoiceStatus.paid,
+                      child: Text('Paid'),
+                    ),
+                    DropdownMenuItem(
+                      value: InvoiceStatus.unpaid,
+                      child: Text('Unpaid'),
+                    ),
+                    DropdownMenuItem(
+                      value: InvoiceStatus.partial,
+                      child: Text('Partial'),
+                    ),
                   ],
-                  onChanged: (value) => setState(() => _filterStatus = value),
+                  onChanged: (value) =>
+                      setState(() => _filterStatus = value),
                 ),
                 const SizedBox(width: 12),
                 FilledButton.icon(
                   onPressed: () async {
                     await Navigator.push(
-                        context, MaterialPageRoute(builder: (_) => const InvoiceFormPage()));
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const InvoiceFormPage(),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('New'),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -71,39 +92,47 @@ class _InvoicesPageState extends State<InvoicesPage> {
               child: filtered.isEmpty
                   ? const Center(child: Text('No invoices yet.'))
                   : ListView.separated(
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final invoice = filtered[index];
-                        return ListTile(
-                          leading: Icon(
-                            invoice.status == InvoiceStatus.paid
-                                ? Icons.check_circle
-                                : invoice.status == InvoiceStatus.partial
-                                    ? Icons.timelapse
-                                    : Icons.pending_actions,
-                            color: invoice.status == InvoiceStatus.paid
-                                ? Colors.green
-                                : invoice.status == InvoiceStatus.partial
-                                    ? Colors.orange
-                                    : Colors.red,
-                          ),
-                          title: Text(invoice.invoiceNumber),
-                          subtitle: Text('${invoice.clientName}\n${invoice.date.toLocal().toString().split(' ').first}'),
-                          isThreeLine: true,
-                          trailing: Text(invoice.total.toStringAsFixed(2)),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => InvoiceDetailPage(invoiceId: invoice.id),
-                              ),
-                            );
-                          },
-                        );
-                      },
+                itemCount: filtered.length,
+                separatorBuilder: (_, __) => const Divider(),
+                itemBuilder: (context, index) {
+                  final invoice = filtered[index];
+                  return ListTile(
+                    leading: Icon(
+                      invoice.status == InvoiceStatus.paid
+                          ? Icons.check_circle
+                          : invoice.status ==
+                          InvoiceStatus.partial
+                          ? Icons.timelapse
+                          : Icons.pending_actions,
+                      color: invoice.status == InvoiceStatus.paid
+                          ? Colors.green
+                          : invoice.status ==
+                          InvoiceStatus.partial
+                          ? Colors.orange
+                          : Colors.red,
                     ),
-            )
+                    title: Text(invoice.invoiceNumber),
+                    subtitle: Text(
+                      '${invoice.clientName}\n${invoice.date.toLocal().toString().split(' ').first}',
+                    ),
+                    isThreeLine: true,
+                    trailing: Text(
+                      invoice.total.toStringAsFixed(2),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InvoiceDetailPage(
+                            invoiceId: invoice.id,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

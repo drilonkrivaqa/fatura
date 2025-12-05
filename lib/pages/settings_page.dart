@@ -13,11 +13,12 @@ class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  State createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State {
   final _formKey = GlobalKey<FormState>();
+
   late TextEditingController _nameController;
   late TextEditingController _addressController;
   late TextEditingController _cityController;
@@ -29,6 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _ibanController;
   late TextEditingController _websiteController;
   String _logoPath = '';
+
   late TextEditingController _currencyController;
   late TextEditingController _vatController;
   late TextEditingController _termsController;
@@ -36,7 +38,10 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+
+    // ✅ Typed provider
     final company = context.read<CompanyService>().profile;
+
     _nameController = TextEditingController(text: company?.name ?? '');
     _addressController = TextEditingController(text: company?.address ?? '');
     _cityController = TextEditingController(text: company?.city ?? '');
@@ -49,10 +54,14 @@ class _SettingsPageState extends State<SettingsPage> {
     _websiteController = TextEditingController(text: company?.website ?? '');
     _logoPath = company?.logoPath ?? '';
 
+    // ✅ Typed provider
     final settings = context.read<SettingsService>().settings;
-    _currencyController = TextEditingController(text: settings.currencySymbol);
-    _vatController = TextEditingController(text: settings.defaultVatRate.toString());
-    _termsController = TextEditingController(text: settings.defaultPaymentTerms.toString());
+    _currencyController =
+        TextEditingController(text: settings.currencySymbol);
+    _vatController =
+        TextEditingController(text: settings.defaultVatRate.toString());
+    _termsController =
+        TextEditingController(text: settings.defaultPaymentTerms.toString());
   }
 
   @override
@@ -73,11 +82,16 @@ class _SettingsPageState extends State<SettingsPage> {
     super.dispose();
   }
 
-  Future<void> _pickLogo() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+  Future _pickLogo() async {
+    final result =
+    await FilePicker.platform.pickFiles(type: FileType.image);
+
     if (result != null && result.files.single.path != null) {
+      // ✅ Typed provider
       final service = context.read<CompanyService>();
-      final savedPath = await service.saveLogoFile(result.files.single.path!);
+      final savedPath =
+      await service.saveLogoFile(result.files.single.path!);
+
       setState(() {
         _logoPath = savedPath;
       });
@@ -86,7 +100,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Typed provider
     final settingsService = context.watch<SettingsService>();
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -94,7 +110,10 @@ class _SettingsPageState extends State<SettingsPage> {
           key: _formKey,
           child: ListView(
             children: [
-              Text('Company profile', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Company profile',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -102,8 +121,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     onTap: _pickLogo,
                     child: CircleAvatar(
                       radius: 36,
-                      backgroundImage: _logoPath.isNotEmpty ? FileImage(File(_logoPath)) : null,
-                      child: _logoPath.isEmpty ? const Icon(Icons.add_a_photo) : null,
+                      backgroundImage: _logoPath.isNotEmpty
+                          ? FileImage(File(_logoPath))
+                          : null,
+                      child: _logoPath.isEmpty
+                          ? const Icon(Icons.add_a_photo)
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -116,26 +139,31 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Company name'),
-                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                decoration:
+                const InputDecoration(labelText: 'Company name'),
+                validator: (val) =>
+                val == null || val.isEmpty ? 'Required' : null,
               ),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Address'),
+                decoration:
+                const InputDecoration(labelText: 'Address'),
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _cityController,
-                      decoration: const InputDecoration(labelText: 'City'),
+                      decoration:
+                      const InputDecoration(labelText: 'City'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _countryController,
-                      decoration: const InputDecoration(labelText: 'Country'),
+                      decoration:
+                      const InputDecoration(labelText: 'Country'),
                     ),
                   ),
                 ],
@@ -145,50 +173,63 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _phoneController,
-                      decoration: const InputDecoration(labelText: 'Phone'),
+                      decoration:
+                      const InputDecoration(labelText: 'Phone'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
+                      decoration:
+                      const InputDecoration(labelText: 'Email'),
                     ),
                   ),
                 ],
               ),
               TextFormField(
                 controller: _taxController,
-                decoration: const InputDecoration(labelText: 'Tax number'),
+                decoration:
+                const InputDecoration(labelText: 'Tax number'),
               ),
               TextFormField(
                 controller: _bankController,
-                decoration: const InputDecoration(labelText: 'Bank name'),
+                decoration:
+                const InputDecoration(labelText: 'Bank name'),
               ),
               TextFormField(
                 controller: _ibanController,
-                decoration: const InputDecoration(labelText: 'IBAN'),
+                decoration:
+                const InputDecoration(labelText: 'IBAN'),
               ),
               TextFormField(
                 controller: _websiteController,
-                decoration: const InputDecoration(labelText: 'Website'),
+                decoration:
+                const InputDecoration(labelText: 'Website'),
               ),
               const SizedBox(height: 16),
-              Text('Defaults', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Defaults',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _currencyController,
-                      decoration: const InputDecoration(labelText: 'Currency symbol'),
+                      decoration: const InputDecoration(
+                        labelText: 'Currency symbol',
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _vatController,
-                      decoration: const InputDecoration(labelText: 'Default VAT %'),
+                      decoration: const InputDecoration(
+                        labelText: 'Default VAT %',
+                      ),
                       keyboardType: TextInputType.number,
                     ),
                   ),
@@ -196,7 +237,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _termsController,
-                      decoration: const InputDecoration(labelText: 'Payment terms (days)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Payment terms (days)',
+                      ),
                       keyboardType: TextInputType.number,
                     ),
                   ),
@@ -206,6 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
               FilledButton(
                 onPressed: () async {
                   if (_formKey.currentState?.validate() != true) return;
+
                   final companyProfile = CompanyProfile(
                     name: _nameController.text,
                     address: _addressController.text,
@@ -219,22 +263,34 @@ class _SettingsPageState extends State<SettingsPage> {
                     website: _websiteController.text,
                     logoPath: _logoPath,
                   );
-                  await context.read<CompanyService>().updateProfile(companyProfile);
+
+                  // ✅ Typed provider
+                  await context
+                      .read<CompanyService>()
+                      .updateProfile(companyProfile);
 
                   final newSettings = AppSettings(
                     currencySymbol: _currencyController.text,
-                    defaultVatRate: double.tryParse(_vatController.text) ?? 0,
-                    defaultPaymentTerms: int.tryParse(_termsController.text) ?? 0,
-                    lastInvoiceNumber: settingsService.settings.lastInvoiceNumber,
+                    defaultVatRate:
+                    double.tryParse(_vatController.text) ?? 0,
+                    defaultPaymentTerms:
+                    int.tryParse(_termsController.text) ?? 0,
+                    lastInvoiceNumber:
+                    settingsService.settings.lastInvoiceNumber,
                   );
+
                   await settingsService.updateSettings(newSettings);
+
                   if (mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(const SnackBar(content: Text('Settings saved')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Settings saved'),
+                      ),
+                    );
                   }
                 },
                 child: const Text('Save settings'),
-              )
+              ),
             ],
           ),
         ),
