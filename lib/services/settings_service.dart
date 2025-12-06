@@ -9,6 +9,7 @@ class SettingsService extends ChangeNotifier {
     defaultVatRate: 0,
     defaultPaymentTerms: 14,
     lastInvoiceNumber: 0,
+    themeMode: 'system',
   );
 
   AppSettings get settings => _settings;
@@ -17,13 +18,30 @@ class SettingsService extends ChangeNotifier {
     loadSettings();
   }
 
+  ThemeMode get currentThemeMode {
+    switch (_settings.themeMode) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      case 'system':
+      default:
+        return ThemeMode.system;
+    }
+  }
+
   void loadSettings() {
     final box = HiveService.settingsBox();
     try {
       if (box.isNotEmpty) {
         final storedSettings = box.getAt(0);
         if (storedSettings is AppSettings) {
-          _settings = storedSettings;
+          var updatedSettings = storedSettings;
+          if (updatedSettings.themeMode.isEmpty) {
+            updatedSettings = storedSettings.copyWith(themeMode: 'system');
+            box.putAt(0, updatedSettings);
+          }
+          _settings = updatedSettings;
         } else {
           // Clear corrupt or incompatible value and persist defaults
           box.clear();
@@ -50,6 +68,11 @@ class SettingsService extends ChangeNotifier {
     }
     _settings = settings;
     notifyListeners();
+  }
+
+  Future<void> setThemeMode(String mode) async {
+    final newSettings = _settings.copyWith(themeMode: mode);
+    await updateSettings(newSettings);
   }
 
   // Generates and persists the next invoice number in format INV-0001

@@ -26,20 +26,23 @@ class SmartInvoiceApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SettingsService()),
         ChangeNotifierProvider(create: (_) => InvoiceService()),
       ],
-      child: MaterialApp(
-        title: 'SmartInvoice',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
-          useMaterial3: true,
+      child: Consumer<SettingsService>(
+        builder: (context, settingsService, _) => MaterialApp(
+          title: 'SmartInvoice',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            colorScheme:
+                ColorScheme.fromSeed(seedColor: Colors.blueGrey, brightness: Brightness.dark),
+            useMaterial3: true,
+          ),
+          themeMode: settingsService.currentThemeMode,
+          home: const HomePage(),
         ),
-        darkTheme: ThemeData(
-          brightness: Brightness.dark,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey, brightness: Brightness.dark),
-          useMaterial3: true,
-        ),
-        themeMode: ThemeMode.system,
-        home: const HomePage(),
       ),
     );
   }
