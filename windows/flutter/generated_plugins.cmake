@@ -3,8 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  file_picker_windows
-  path_provider_windows
   printing
 )
 
