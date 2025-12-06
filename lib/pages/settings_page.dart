@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package/file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,18 +37,12 @@ class _SettingsPageState extends State {
   late TextEditingController _vatController;
   late TextEditingController _termsController;
 
-  int? _selectedCompanyIndex;
-  bool _isNewCompany = false;
-
   @override
   void initState() {
     super.initState();
 
-    final companyService = context.read<CompanyService>();
-    final company = companyService.activeProfile;
-
-    _selectedCompanyIndex = companyService.activeIndex;
-    _isNewCompany = company == null;
+    // ✅ Typed provider
+    final company = context.read<CompanyService>().profile;
 
     _nameController = TextEditingController(text: company?.name ?? '');
     _addressController = TextEditingController(text: company?.address ?? '');
@@ -62,8 +56,10 @@ class _SettingsPageState extends State {
     _websiteController = TextEditingController(text: company?.website ?? '');
     _logoPath = company?.logoPath ?? '';
 
+    // ✅ Typed provider
     final settings = context.read<SettingsService>().settings;
-    _currencyController = TextEditingController(text: settings.currencySymbol);
+    _currencyController =
+        TextEditingController(text: settings.currencySymbol);
     _vatController =
         TextEditingController(text: settings.defaultVatRate.toString());
     _termsController =
@@ -88,24 +84,6 @@ class _SettingsPageState extends State {
     super.dispose();
   }
 
-  void _loadCompanyIntoForm(CompanyProfile? company) {
-    _nameController.text = company?.name ?? '';
-    _addressController.text = company?.address ?? '';
-    _cityController.text = company?.city ?? '';
-    _countryController.text = company?.country ?? '';
-    _phoneController.text = company?.phone ?? '';
-    _emailController.text = company?.email ?? '';
-    _taxController.text = company?.taxNumber ?? '';
-    _bankController.text = company?.bankName ?? '';
-    _ibanController.text = company?.iban ?? '';
-    _websiteController.text = company?.website ?? '';
-    _logoPath = company?.logoPath ?? '';
-  }
-
-  void _clearCompanyForm() {
-    _loadCompanyIntoForm(null);
-  }
-
   Future _pickLogo() async {
     final result =
         await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
@@ -113,6 +91,7 @@ class _SettingsPageState extends State {
     if (result != null) {
       final picked = result.files.single;
 
+      // ✅ Typed provider
       final service = context.read<CompanyService>();
       final savedPath = await service.saveLogoFile(
         originalPath: picked.path,
@@ -143,8 +122,8 @@ class _SettingsPageState extends State {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Typed provider
     final settingsService = context.watch<SettingsService>();
-    final companyService = context.watch<CompanyService>();
 
     return Scaffold(
       body: Padding(
@@ -153,45 +132,6 @@ class _SettingsPageState extends State {
           key: _formKey,
           child: ListView(
             children: [
-              Text(
-                'Companies',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              if (companyService.companies.isEmpty)
-                const Text('No companies yet. Add one to get started.'),
-              ...companyService.companies.asMap().entries.map(
-                (entry) => RadioListTile<int>(
-                  title: Text(entry.value.name),
-                  subtitle: Text('${entry.value.city}, ${entry.value.country}'),
-                  value: entry.key,
-                  groupValue: companyService.activeIndex,
-                  onChanged: (value) async {
-                    if (value == null) return;
-                    await companyService.setActiveCompany(value);
-                    setState(() {
-                      _isNewCompany = false;
-                      _selectedCompanyIndex = value;
-                      _loadCompanyIntoForm(companyService.activeProfile);
-                    });
-                  },
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _isNewCompany = true;
-                      _selectedCompanyIndex = null;
-                      _clearCompanyForm();
-                    });
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add company'),
-                ),
-              ),
-              const SizedBox(height: 12),
               Text(
                 'Company profile',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -218,26 +158,31 @@ class _SettingsPageState extends State {
               ),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Company name'),
-                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                decoration:
+                const InputDecoration(labelText: 'Company name'),
+                validator: (val) =>
+                val == null || val.isEmpty ? 'Required' : null,
               ),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Address'),
+                decoration:
+                const InputDecoration(labelText: 'Address'),
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _cityController,
-                      decoration: const InputDecoration(labelText: 'City'),
+                      decoration:
+                      const InputDecoration(labelText: 'City'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _countryController,
-                      decoration: const InputDecoration(labelText: 'Country'),
+                      decoration:
+                      const InputDecoration(labelText: 'Country'),
                     ),
                   ),
                 ],
@@ -247,33 +192,39 @@ class _SettingsPageState extends State {
                   Expanded(
                     child: TextFormField(
                       controller: _phoneController,
-                      decoration: const InputDecoration(labelText: 'Phone'),
+                      decoration:
+                      const InputDecoration(labelText: 'Phone'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
+                      decoration:
+                      const InputDecoration(labelText: 'Email'),
                     ),
                   ),
                 ],
               ),
               TextFormField(
                 controller: _taxController,
-                decoration: const InputDecoration(labelText: 'Tax number'),
+                decoration:
+                const InputDecoration(labelText: 'Tax number'),
               ),
               TextFormField(
                 controller: _bankController,
-                decoration: const InputDecoration(labelText: 'Bank name'),
+                decoration:
+                const InputDecoration(labelText: 'Bank name'),
               ),
               TextFormField(
                 controller: _ibanController,
-                decoration: const InputDecoration(labelText: 'IBAN'),
+                decoration:
+                const InputDecoration(labelText: 'IBAN'),
               ),
               TextFormField(
                 controller: _websiteController,
-                decoration: const InputDecoration(labelText: 'Website'),
+                decoration:
+                const InputDecoration(labelText: 'Website'),
               ),
               const SizedBox(height: 16),
               Text(
@@ -368,27 +319,19 @@ class _SettingsPageState extends State {
                     logoPath: _logoPath,
                   );
 
-                  if (_isNewCompany || _selectedCompanyIndex == null) {
-                    await context.read<CompanyService>().addCompany(companyProfile);
-                    setState(() {
-                      _isNewCompany = false;
-                      _selectedCompanyIndex =
-                          context.read<CompanyService>().activeIndex;
-                      _loadCompanyIntoForm(
-                        context.read<CompanyService>().activeProfile,
-                      );
-                    });
-                  } else {
-                    await context
-                        .read<CompanyService>()
-                        .updateCompany(_selectedCompanyIndex!, companyProfile);
-                  }
+                  // ✅ Typed provider
+                  await context
+                      .read<CompanyService>()
+                      .updateProfile(companyProfile);
 
                   final newSettings = AppSettings(
                     currencySymbol: _currencyController.text,
-                    defaultVatRate: double.tryParse(_vatController.text) ?? 0,
-                    defaultPaymentTerms: int.tryParse(_termsController.text) ?? 0,
-                    lastInvoiceNumber: settingsService.settings.lastInvoiceNumber,
+                    defaultVatRate:
+                    double.tryParse(_vatController.text) ?? 0,
+                    defaultPaymentTerms:
+                    int.tryParse(_termsController.text) ?? 0,
+                    lastInvoiceNumber:
+                    settingsService.settings.lastInvoiceNumber,
                     themeMode: settingsService.settings.themeMode,
                   );
 

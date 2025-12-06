@@ -22,8 +22,8 @@ class InvoiceDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // ✅ Typed providers
     final invoice =
-        context.watch<InvoiceService>().findById(invoiceId);
-    final company = context.watch<CompanyService>().activeProfile;
+    context.watch<InvoiceService>().findById(invoiceId);
+    final company = context.watch<CompanyService>().profile;
     final settings = context.watch<SettingsService>().settings;
 
     if (invoice == null) {
