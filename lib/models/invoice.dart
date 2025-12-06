@@ -9,6 +9,12 @@ class Invoice {
   final String invoiceNumber;
   final String clientId;
   final String clientName;
+  final String clientAddress;
+  final String clientCity;
+  final String clientCountry;
+  final String clientEmail;
+  final String clientPhone;
+  final String clientTaxNumber;
   final DateTime date;
   final DateTime dueDate;
   final String paymentTerms;
@@ -26,6 +32,12 @@ class Invoice {
     required this.invoiceNumber,
     required this.clientId,
     required this.clientName,
+    required this.clientAddress,
+    required this.clientCity,
+    required this.clientCountry,
+    required this.clientEmail,
+    required this.clientPhone,
+    required this.clientTaxNumber,
     required this.date,
     required this.dueDate,
     required this.paymentTerms,
@@ -44,6 +56,12 @@ class Invoice {
     String? invoiceNumber,
     String? clientId,
     String? clientName,
+    String? clientAddress,
+    String? clientCity,
+    String? clientCountry,
+    String? clientEmail,
+    String? clientPhone,
+    String? clientTaxNumber,
     DateTime? date,
     DateTime? dueDate,
     String? paymentTerms,
@@ -61,6 +79,12 @@ class Invoice {
       invoiceNumber: invoiceNumber ?? this.invoiceNumber,
       clientId: clientId ?? this.clientId,
       clientName: clientName ?? this.clientName,
+      clientAddress: clientAddress ?? this.clientAddress,
+      clientCity: clientCity ?? this.clientCity,
+      clientCountry: clientCountry ?? this.clientCountry,
+      clientEmail: clientEmail ?? this.clientEmail,
+      clientPhone: clientPhone ?? this.clientPhone,
+      clientTaxNumber: clientTaxNumber ?? this.clientTaxNumber,
       date: date ?? this.date,
       dueDate: dueDate ?? this.dueDate,
       paymentTerms: paymentTerms ?? this.paymentTerms,
@@ -117,11 +141,23 @@ class InvoiceAdapter extends TypeAdapter<Invoice> {
     final totalInWords = reader.readString();
     final currency = reader.readString();
     final status = reader.read() as InvoiceStatus;
+    final clientAddress = reader.availableBytes > 0 ? reader.readString() : '';
+    final clientCity = reader.availableBytes > 0 ? reader.readString() : '';
+    final clientCountry = reader.availableBytes > 0 ? reader.readString() : '';
+    final clientEmail = reader.availableBytes > 0 ? reader.readString() : '';
+    final clientPhone = reader.availableBytes > 0 ? reader.readString() : '';
+    final clientTaxNumber = reader.availableBytes > 0 ? reader.readString() : '';
     return Invoice(
       id: id,
       invoiceNumber: invoiceNumber,
       clientId: clientId,
       clientName: clientName,
+      clientAddress: clientAddress,
+      clientCity: clientCity,
+      clientCountry: clientCountry,
+      clientEmail: clientEmail,
+      clientPhone: clientPhone,
+      clientTaxNumber: clientTaxNumber,
       date: date,
       dueDate: dueDate,
       paymentTerms: paymentTerms,
@@ -157,6 +193,12 @@ class InvoiceAdapter extends TypeAdapter<Invoice> {
       ..writeDouble(obj.total)
       ..writeString(obj.totalInWords)
       ..writeString(obj.currency)
-      ..write(obj.status);
+      ..write(obj.status)
+      ..writeString(obj.clientAddress)
+      ..writeString(obj.clientCity)
+      ..writeString(obj.clientCountry)
+      ..writeString(obj.clientEmail)
+      ..writeString(obj.clientPhone)
+      ..writeString(obj.clientTaxNumber);
   }
 }

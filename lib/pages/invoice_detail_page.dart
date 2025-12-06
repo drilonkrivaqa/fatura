@@ -22,8 +22,7 @@ class InvoiceDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ✅ Typed providers
-    final invoice =
-    context.watch<InvoiceService>().findById(invoiceId);
+    final invoice = context.watch<InvoiceService>().findById(invoiceId);
     final company = context.watch<CompanyService>().profile;
     final settings = context.watch<SettingsService>().settings;
 
@@ -34,8 +33,28 @@ class InvoiceDetailPage extends StatelessWidget {
     }
 
     // ✅ Typed provider
-    final client =
-    context.read<ClientService>().findById(invoice.clientId);
+    final client = context.read<ClientService>().findById(invoice.clientId);
+    final clientName = invoice.clientName.isNotEmpty
+        ? invoice.clientName
+        : client?.name ?? '';
+    final clientAddress = invoice.clientAddress.isNotEmpty
+        ? invoice.clientAddress
+        : client?.address ?? '';
+    final clientCity = invoice.clientCity.isNotEmpty
+        ? invoice.clientCity
+        : client?.city ?? '';
+    final clientCountry = invoice.clientCountry.isNotEmpty
+        ? invoice.clientCountry
+        : client?.country ?? '';
+    final clientEmail = invoice.clientEmail.isNotEmpty
+        ? invoice.clientEmail
+        : client?.email ?? '';
+    final clientPhone = invoice.clientPhone.isNotEmpty
+        ? invoice.clientPhone
+        : client?.phone ?? '';
+    final clientTaxNumber = invoice.clientTaxNumber.isNotEmpty
+        ? invoice.clientTaxNumber
+        : client?.taxNumber ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -111,25 +130,29 @@ class InvoiceDetailPage extends StatelessWidget {
         child: ListView(
           children: [
             Row(
-              mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      invoice.clientName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium,
+                      clientName,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    if (client != null)
-                      Text(
-                        '${client.address}\n'
-                            '${client.city}, ${client.country}\n'
-                            '${client.email}',
-                      ),
+                    Text(
+                      [
+                        clientAddress,
+                        [clientCity, clientCountry]
+                            .where((part) => part.isNotEmpty)
+                            .join(', '),
+                        clientEmail,
+                        clientPhone,
+                        if (clientTaxNumber.isNotEmpty)
+                          'Tax: $clientTaxNumber',
+                      ]
+                          .where((line) => line.isNotEmpty)
+                          .join('\n'),
+                    ),
                   ],
                 ),
                 StatusChip(status: invoice.status),
