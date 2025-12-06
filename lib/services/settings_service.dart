@@ -20,7 +20,14 @@ class SettingsService extends ChangeNotifier {
   void loadSettings() {
     final box = HiveService.settingsBox();
     if (box.isNotEmpty) {
-      _settings = box.getAt(0)!;
+      final storedSettings = box.getAt(0);
+      if (storedSettings is AppSettings) {
+        _settings = storedSettings;
+      } else {
+        // Clear corrupt or incompatible value and persist defaults
+        box.clear();
+        box.add(_settings);
+      }
     } else {
       box.add(_settings);
     }
