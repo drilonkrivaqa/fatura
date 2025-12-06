@@ -11,7 +11,12 @@ import '../services/settings_service.dart';
 import '../utils/number_to_words.dart';
 
 class InvoiceFormPage extends StatefulWidget {
-  const InvoiceFormPage({super.key});
+  final Invoice? existingInvoice;
+
+  const InvoiceFormPage({
+    super.key,
+    this.existingInvoice,
+  });
 
   @override
   State createState() => _InvoiceFormPageState();
@@ -38,29 +43,42 @@ class _InvoiceFormPageState extends State {
   void initState() {
     super.initState();
 
-    // ✅ Typed provider
     final settings = context.read<SettingsService>().settings;
 
-    _vatRate = settings.defaultVatRate;
-    _paymentTerms = '${settings.defaultPaymentTerms} days';
-    _dueDate =
-        _invoiceDate.add(Duration(days: settings.defaultPaymentTerms));
-    _currencyWord =
-    settings.currencySymbol == '€' ? 'euro' : settings.currencySymbol;
+    if (widget.existingInvoice != null) {
+      final invoice = widget.existingInvoice!;
+      _selectedClientId = invoice.clientId;
+      _invoiceDate = invoice.date;
+      _dueDate = invoice.dueDate;
+      _paymentTerms = invoice.paymentTerms;
+      _vatRate = invoice.vatRate;
+      _status = invoice.status;
+      _items = invoice.items.map((item) => item.copyWith()).toList();
+      _currencyWord = invoice.currency == '€' ? 'euro' : invoice.currency;
+    } else {
+      _vatRate = settings.defaultVatRate;
+      _paymentTerms = '${settings.defaultPaymentTerms} days';
+      _dueDate =
+          _invoiceDate.add(Duration(days: settings.defaultPaymentTerms));
+      _currencyWord =
+          settings.currencySymbol == '€' ? 'euro' : settings.currencySymbol;
+    }
 
-    _recalculateTotals();
+    _recalculateTotals(updateState: false);
   }
 
-  void _recalculateTotals() {
+  void _recalculateTotals({bool updateState = true}) {
     _subtotal = _items.fold(
       0,
-          (sum, item) => sum + item.lineTotal,
+      (sum, item) => sum + item.lineTotal,
     );
     _vatAmount = _subtotal * (_vatRate / 100);
     _total = _subtotal + _vatAmount;
     _totalInWords = numberToWords(_total, currency: _currencyWord);
 
-    setState(() {});
+    if (updateState) {
+      setState(() {});
+    }
   }
 
   void _updateDueDateFromTerms(int days) {
@@ -75,8 +93,20 @@ class _InvoiceFormPageState extends State {
     final settings = context.watch<SettingsService>().settings;
     final currency = settings.currencySymbol;
 
+    final paymentTermsOptions = {
+      'Due on receipt',
+      '7 days',
+      '14 days',
+      '30 days',
+      _paymentTerms,
+    }.toList();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('New Invoice')),
+      appBar: AppBar(
+        title: Text(
+          widget.existingInvoice != null ? 'Edit Invoice' : 'New Invoice',
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -85,20 +115,17 @@ class _InvoiceFormPageState extends State {
             children: [
               DropdownButtonFormField<String>(
                 value: _selectedClientId,
-                decoration:
-                const InputDecoration(labelText: 'Select client'),
+                decoration: const InputDecoration(labelText: 'Select client'),
                 items: clients
                     .map(
                       (c) => DropdownMenuItem<String>(
-                    value: c.id,
-                    child: Text(c.name),
-                  ),
-                )
+                        value: c.id,
+                        child: Text(c.name),
+                      ),
+                    )
                     .toList(),
-                onChanged: (val) =>
-                    setState(() => _selectedClientId = val),
-                validator: (val) =>
-                val == null ? 'Choose client' : null,
+                onChanged: (val) => setState(() => _selectedClientId = val),
+                validator: (val) => val == null ? 'Choose client' : null,
               ),
               const SizedBox(height: 12),
               Row(
@@ -156,26 +183,15 @@ class _InvoiceFormPageState extends State {
               ),
               DropdownButtonFormField<String>(
                 value: _paymentTerms,
-                decoration:
-                const InputDecoration(labelText: 'Payment terms'),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Due on receipt',
-                    child: Text('Due on receipt'),
-                  ),
-                  DropdownMenuItem(
-                    value: '7 days',
-                    child: Text('7 days'),
-                  ),
-                  DropdownMenuItem(
-                    value: '14 days',
-                    child: Text('14 days'),
-                  ),
-                  DropdownMenuItem(
-                    value: '30 days',
-                    child: Text('30 days'),
-                  ),
-                ],
+                decoration: const InputDecoration(labelText: 'Payment terms'),
+                items: paymentTermsOptions
+                    .map(
+                      (option) => DropdownMenuItem(
+                        value: option,
+                        child: Text(option),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (val) {
                   if (val == null) return;
                   setState(() {
@@ -466,44 +482,64 @@ class _InvoiceFormPageState extends State {
                     return;
                   }
 
-                  final selectedClient = clients.firstWhere(
-                        (c) => c.id == _selectedClientId,
-                  );
+                  final selectedClient =
+                      clients.firstWhere((c) => c.id == _selectedClientId);
 
-                  // ✅ Typed providers
-                  final settingsService =
-                  context.read<SettingsService>();
-                  final invoiceService =
-                  context.read<InvoiceService>();
+                  final settingsService = context.read<SettingsService>();
+                  final invoiceService = context.read<InvoiceService>();
 
-                  final invoiceNumber =
-                  await settingsService.getNextInvoiceNumber();
+                  if (widget.existingInvoice != null) {
+                    final updatedInvoice = widget.existingInvoice!.copyWith(
+                      clientId: selectedClient.id,
+                      clientName: selectedClient.name,
+                      date: _invoiceDate,
+                      dueDate: _dueDate,
+                      paymentTerms: _paymentTerms,
+                      items: _items,
+                      subtotal: _subtotal,
+                      vatRate: _vatRate,
+                      vatAmount: _vatAmount,
+                      total: _total,
+                      totalInWords: _totalInWords,
+                      currency: currency,
+                      status: _status,
+                    );
 
-                  final invoice = Invoice(
-                    id: const Uuid().v4(),
-                    invoiceNumber: invoiceNumber,
-                    clientId: selectedClient.id,
-                    clientName: selectedClient.name,
-                    date: _invoiceDate,
-                    dueDate: _dueDate,
-                    paymentTerms: _paymentTerms,
-                    items: _items,
-                    subtotal: _subtotal,
-                    vatRate: _vatRate,
-                    vatAmount: _vatAmount,
-                    total: _total,
-                    totalInWords: _totalInWords,
-                    currency: currency,
-                    status: _status,
-                  );
+                    await invoiceService.updateInvoice(updatedInvoice);
+                  } else {
+                    final invoiceNumber =
+                        await settingsService.getNextInvoiceNumber();
 
-                  await invoiceService.addInvoice(invoice);
+                    final invoice = Invoice(
+                      id: const Uuid().v4(),
+                      invoiceNumber: invoiceNumber,
+                      clientId: selectedClient.id,
+                      clientName: selectedClient.name,
+                      date: _invoiceDate,
+                      dueDate: _dueDate,
+                      paymentTerms: _paymentTerms,
+                      items: _items,
+                      subtotal: _subtotal,
+                      vatRate: _vatRate,
+                      vatAmount: _vatAmount,
+                      total: _total,
+                      totalInWords: _totalInWords,
+                      currency: currency,
+                      status: _status,
+                    );
+
+                    await invoiceService.addInvoice(invoice);
+                  }
 
                   if (mounted) {
                     Navigator.pop(context);
                   }
                 },
-                child: const Text('Save invoice'),
+                child: Text(
+                  widget.existingInvoice != null
+                      ? 'Update invoice'
+                      : 'Save invoice',
+                ),
               ),
             ],
           ),
