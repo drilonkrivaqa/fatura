@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -181,6 +182,10 @@ class PdfService {
   }
 
   Future<Uint8List> _readLogo(String path) async {
+    if (path.startsWith('data:')) {
+      final encoded = path.split(',').last;
+      return Uint8List.fromList(base64Decode(encoded));
+    }
     final file = File(path);
     return file.readAsBytes();
   }

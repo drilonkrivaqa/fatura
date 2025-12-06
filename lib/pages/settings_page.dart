@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -84,18 +86,38 @@ class _SettingsPageState extends State {
 
   Future _pickLogo() async {
     final result =
-    await FilePicker.platform.pickFiles(type: FileType.image);
+        await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null) {
+      final picked = result.files.single;
+
       // ✅ Typed provider
       final service = context.read<CompanyService>();
-      final savedPath =
-      await service.saveLogoFile(result.files.single.path!);
+      final savedPath = await service.saveLogoFile(
+        originalPath: picked.path,
+        bytes: picked.bytes,
+        fileName: picked.name,
+      );
 
       setState(() {
         _logoPath = savedPath;
       });
     }
+  }
+
+  ImageProvider? _logoProvider() {
+    if (_logoPath.isEmpty) return null;
+
+    if (kIsWeb && _logoPath.startsWith('data:')) {
+      final encoded = _logoPath.split(',').last;
+      return MemoryImage(base64Decode(encoded));
+    }
+
+    final file = File(_logoPath);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+    return null;
   }
 
   @override
@@ -121,12 +143,9 @@ class _SettingsPageState extends State {
                     onTap: _pickLogo,
                     child: CircleAvatar(
                       radius: 36,
-                      backgroundImage: _logoPath.isNotEmpty
-                          ? FileImage(File(_logoPath))
-                          : null,
-                      child: _logoPath.isEmpty
-                          ? const Icon(Icons.add_a_photo)
-                          : null,
+                      backgroundImage: _logoProvider(),
+                      child:
+                          _logoPath.isEmpty ? const Icon(Icons.add_a_photo) : null,
                     ),
                   ),
                   const SizedBox(width: 12),
