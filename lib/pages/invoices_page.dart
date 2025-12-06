@@ -116,8 +116,68 @@ class _InvoicesPageState extends State {
                       '${invoice.clientName}\n${invoice.date.toLocal().toString().split(' ').first}',
                     ),
                     isThreeLine: true,
-                    trailing: Text(
-                      invoice.total.toStringAsFixed(2),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          invoice.total.toStringAsFixed(2),
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (value) async {
+                            if (value == 'edit') {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => InvoiceFormPage(
+                                    existingInvoice: invoice,
+                                  ),
+                                ),
+                              );
+                            } else if (value == 'delete') {
+                              final confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Delete invoice'),
+                                    content: const Text(
+                                      'Are you sure you want to delete this invoice? This action cannot be undone.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      FilledButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (confirmed == true) {
+                                await context
+                                    .read<InvoiceService>()
+                                    .deleteInvoice(invoice.id);
+                              }
+                            }
+                          },
+                          itemBuilder: (context) => const [
+                            PopupMenuItem(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                          icon: const Icon(Icons.more_vert),
+                        ),
+                      ],
                     ),
                     onTap: () {
                       Navigator.push(
