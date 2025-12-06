@@ -22,6 +22,31 @@ class PdfService {
     final pdf = pw.Document();
     final currency = settings.currencySymbol;
 
+    final billToName = invoice.clientName.isNotEmpty
+        ? invoice.clientName
+        : client?.name ?? '';
+    final billToAddress = invoice.clientAddress.isNotEmpty
+        ? invoice.clientAddress
+        : client?.address ?? '';
+    final billToCity = invoice.clientCity.isNotEmpty
+        ? invoice.clientCity
+        : client?.city ?? '';
+    final billToCountry = invoice.clientCountry.isNotEmpty
+        ? invoice.clientCountry
+        : client?.country ?? '';
+    final billToCityCountry = [billToCity, billToCountry]
+        .where((part) => part.isNotEmpty)
+        .join(', ');
+    final billToEmail = invoice.clientEmail.isNotEmpty
+        ? invoice.clientEmail
+        : client?.email ?? '';
+    final billToPhone = invoice.clientPhone.isNotEmpty
+        ? invoice.clientPhone
+        : client?.phone ?? '';
+    final billToTaxNumber = invoice.clientTaxNumber.isNotEmpty
+        ? invoice.clientTaxNumber
+        : client?.taxNumber ?? '';
+
     final formatCurrency = NumberFormat.currency(
       symbol: currency,
       decimalDigits: 2,
@@ -85,12 +110,12 @@ class PdfService {
                   children: [
                     pw.Text('Bill To',
                         style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16)),
-                    pw.Text(client?.name ?? ''),
-                    pw.Text(client?.address ?? ''),
-                    pw.Text('${client?.city ?? ''}, ${client?.country ?? ''}'),
-                    pw.Text('Email: ${client?.email ?? ''}'),
-                    pw.Text('Phone: ${client?.phone ?? ''}'),
-                    if ((client?.taxNumber ?? '').isNotEmpty) pw.Text('Tax: ${client?.taxNumber ?? ''}'),
+                    pw.Text(billToName),
+                    pw.Text(billToAddress),
+                    pw.Text(billToCityCountry),
+                    pw.Text('Email: $billToEmail'),
+                    pw.Text('Phone: $billToPhone'),
+                    if (billToTaxNumber.isNotEmpty) pw.Text('Tax: $billToTaxNumber'),
                   ],
                 ),
               ),

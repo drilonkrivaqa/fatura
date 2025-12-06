@@ -26,11 +26,20 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
   final _formKey = GlobalKey<FormState>();
 
   String? _selectedClientId;
+  bool _useManualClient = false;
   DateTime _invoiceDate = DateTime.now();
   DateTime _dueDate = DateTime.now();
   String _paymentTerms = '';
   double _vatRate = 0;
   InvoiceStatus _status = InvoiceStatus.unpaid;
+
+  late final TextEditingController _manualNameController;
+  late final TextEditingController _manualAddressController;
+  late final TextEditingController _manualCityController;
+  late final TextEditingController _manualCountryController;
+  late final TextEditingController _manualEmailController;
+  late final TextEditingController _manualPhoneController;
+  late final TextEditingController _manualTaxNumberController;
 
   List<InvoiceItem> _items = [];
   double _subtotal = 0;
@@ -43,11 +52,20 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
   void initState() {
     super.initState();
 
+    _manualNameController = TextEditingController();
+    _manualAddressController = TextEditingController();
+    _manualCityController = TextEditingController();
+    _manualCountryController = TextEditingController();
+    _manualEmailController = TextEditingController();
+    _manualPhoneController = TextEditingController();
+    _manualTaxNumberController = TextEditingController();
+
     final settings = context.read<SettingsService>().settings;
 
     if (widget.existingInvoice != null) {
       final invoice = widget.existingInvoice!;
-      _selectedClientId = invoice.clientId;
+      _selectedClientId = invoice.clientId.isNotEmpty ? invoice.clientId : null;
+      _useManualClient = invoice.clientId.isEmpty;
       _invoiceDate = invoice.date;
       _dueDate = invoice.dueDate;
       _paymentTerms = invoice.paymentTerms;
@@ -55,6 +73,14 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
       _status = invoice.status;
       _items = invoice.items.map((item) => item.copyWith()).toList();
       _currencyWord = invoice.currency == '€' ? 'euro' : invoice.currency;
+
+      _manualNameController.text = invoice.clientName;
+      _manualAddressController.text = invoice.clientAddress;
+      _manualCityController.text = invoice.clientCity;
+      _manualCountryController.text = invoice.clientCountry;
+      _manualEmailController.text = invoice.clientEmail;
+      _manualPhoneController.text = invoice.clientPhone;
+      _manualTaxNumberController.text = invoice.clientTaxNumber;
     } else {
       _vatRate = settings.defaultVatRate;
       _paymentTerms = '${settings.defaultPaymentTerms} days';
@@ -65,6 +91,18 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
     }
 
     _recalculateTotals(updateState: false);
+  }
+
+  @override
+  void dispose() {
+    _manualNameController.dispose();
+    _manualAddressController.dispose();
+    _manualCityController.dispose();
+    _manualCountryController.dispose();
+    _manualEmailController.dispose();
+    _manualPhoneController.dispose();
+    _manualTaxNumberController.dispose();
+    super.dispose();
   }
 
   void _recalculateTotals({bool updateState = true}) {
@@ -114,7 +152,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
           child: ListView(
             children: [
               DropdownButtonFormField<String>(
-                value: _selectedClientId,
+                value: _useManualClient ? null : _selectedClientId,
                 decoration: const InputDecoration(labelText: 'Select client'),
                 items: clients
                     .map(
@@ -124,9 +162,95 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                       ),
                     )
                     .toList(),
-                onChanged: (val) => setState(() => _selectedClientId = val),
-                validator: (val) => val == null ? 'Choose client' : null,
+                onChanged: _useManualClient
+                    ? null
+                    : (val) => setState(() => _selectedClientId = val),
+                validator: (val) =>
+                    _useManualClient ? null : val == null ? 'Choose client' : null,
               ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Enter client manually'),
+                value: _useManualClient,
+                onChanged: (value) {
+                  setState(() {
+                    _useManualClient = value;
+                    if (value) {
+                      _selectedClientId = null;
+                    }
+                  });
+                },
+              ),
+              if (_useManualClient) ...[
+                TextFormField(
+                  controller: _manualNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Client name',
+                  ),
+                  validator: (val) {
+                    if (!_useManualClient) return null;
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Enter client name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _manualAddressController,
+                  decoration: const InputDecoration(
+                    labelText: 'Address',
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _manualCityController,
+                        decoration: const InputDecoration(
+                          labelText: 'City',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _manualCountryController,
+                        decoration: const InputDecoration(
+                          labelText: 'Country',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _manualEmailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _manualPhoneController,
+                        decoration: const InputDecoration(
+                          labelText: 'Phone',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                TextFormField(
+                  controller: _manualTaxNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Tax number',
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -482,16 +606,45 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     return;
                   }
 
-                  final selectedClient =
-                      clients.firstWhere((c) => c.id == _selectedClientId);
+                  final clientSnapshot = _useManualClient
+                      ? (
+                          id: '',
+                          name: _manualNameController.text.trim(),
+                          address: _manualAddressController.text.trim(),
+                          city: _manualCityController.text.trim(),
+                          country: _manualCountryController.text.trim(),
+                          email: _manualEmailController.text.trim(),
+                          phone: _manualPhoneController.text.trim(),
+                          taxNumber: _manualTaxNumberController.text.trim(),
+                        )
+                      : (() {
+                          final selectedClient = clients
+                              .firstWhere((c) => c.id == _selectedClientId);
+                          return (
+                            id: selectedClient.id,
+                            name: selectedClient.name,
+                            address: selectedClient.address,
+                            city: selectedClient.city,
+                            country: selectedClient.country,
+                            email: selectedClient.email,
+                            phone: selectedClient.phone,
+                            taxNumber: selectedClient.taxNumber,
+                          );
+                        })();
 
                   final settingsService = context.read<SettingsService>();
                   final invoiceService = context.read<InvoiceService>();
 
                   if (widget.existingInvoice != null) {
                     final updatedInvoice = widget.existingInvoice!.copyWith(
-                      clientId: selectedClient.id,
-                      clientName: selectedClient.name,
+                      clientId: clientSnapshot.id,
+                      clientName: clientSnapshot.name,
+                      clientAddress: clientSnapshot.address,
+                      clientCity: clientSnapshot.city,
+                      clientCountry: clientSnapshot.country,
+                      clientEmail: clientSnapshot.email,
+                      clientPhone: clientSnapshot.phone,
+                      clientTaxNumber: clientSnapshot.taxNumber,
                       date: _invoiceDate,
                       dueDate: _dueDate,
                       paymentTerms: _paymentTerms,
@@ -513,8 +666,14 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     final invoice = Invoice(
                       id: const Uuid().v4(),
                       invoiceNumber: invoiceNumber,
-                      clientId: selectedClient.id,
-                      clientName: selectedClient.name,
+                      clientId: clientSnapshot.id,
+                      clientName: clientSnapshot.name,
+                      clientAddress: clientSnapshot.address,
+                      clientCity: clientSnapshot.city,
+                      clientCountry: clientSnapshot.country,
+                      clientEmail: clientSnapshot.email,
+                      clientPhone: clientSnapshot.phone,
+                      clientTaxNumber: clientSnapshot.taxNumber,
                       date: _invoiceDate,
                       dueDate: _dueDate,
                       paymentTerms: _paymentTerms,
