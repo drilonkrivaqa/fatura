@@ -9,6 +9,7 @@ import '../services/invoice_service.dart';
 import '../services/pdf_service.dart';
 import '../services/settings_service.dart';
 import '../widgets/status_chip.dart';
+import 'invoice_form_page.dart';
 
 class InvoiceDetailPage extends StatelessWidget {
   final String invoiceId;
@@ -55,7 +56,54 @@ class InvoiceDetailPage extends StatelessWidget {
                 filename: '${invoice.invoiceNumber}.pdf',
               );
             },
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => InvoiceFormPage(
+                    existingInvoice: invoice,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Delete invoice'),
+                    content: const Text(
+                      'Are you sure you want to delete this invoice? This action cannot be undone.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (confirmed == true) {
+                await context.read<InvoiceService>().deleteInvoice(invoice.id);
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              }
+            },
+          ),
         ],
       ),
       body: Padding(
