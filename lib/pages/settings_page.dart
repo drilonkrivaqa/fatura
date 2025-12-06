@@ -265,6 +265,42 @@ class _SettingsPageState extends State {
                 ],
               ),
               const SizedBox(height: 24),
+              Text(
+                'Appearance / Theme',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              RadioListTile<String>(
+                title: const Text('System'),
+                value: 'system',
+                groupValue: settingsService.settings.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<SettingsService>().setThemeMode(value);
+                  }
+                },
+              ),
+              RadioListTile<String>(
+                title: const Text('Light'),
+                value: 'light',
+                groupValue: settingsService.settings.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<SettingsService>().setThemeMode(value);
+                  }
+                },
+              ),
+              RadioListTile<String>(
+                title: const Text('Dark'),
+                value: 'dark',
+                groupValue: settingsService.settings.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<SettingsService>().setThemeMode(value);
+                  }
+                },
+              ),
+              const SizedBox(height: 24),
               FilledButton(
                 onPressed: () async {
                   if (_formKey.currentState?.validate() != true) return;
@@ -296,6 +332,7 @@ class _SettingsPageState extends State {
                     int.tryParse(_termsController.text) ?? 0,
                     lastInvoiceNumber:
                     settingsService.settings.lastInvoiceNumber,
+                    themeMode: settingsService.settings.themeMode,
                   );
 
                   await settingsService.updateSettings(newSettings);
