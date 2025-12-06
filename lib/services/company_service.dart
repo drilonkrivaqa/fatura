@@ -11,9 +11,17 @@ import '../models/company_profile.dart';
 import 'hive_service.dart';
 
 class CompanyService extends ChangeNotifier {
-  CompanyProfile? _profile;
+  List<CompanyProfile> _companies = [];
+  int? _activeIndex;
 
-  CompanyProfile? get profile => _profile;
+  List<CompanyProfile> get companies => _companies;
+
+  CompanyProfile? get activeProfile =>
+      _activeIndex != null && _activeIndex! >= 0 && _activeIndex! < _companies.length
+          ? _companies[_activeIndex!]
+          : null;
+
+  int? get activeIndex => _activeIndex;
 
   CompanyService() {
     loadProfile();
@@ -21,20 +29,65 @@ class CompanyService extends ChangeNotifier {
 
   Future<void> loadProfile() async {
     final box = HiveService.companyBox();
-    if (box.isNotEmpty) {
-      _profile = box.getAt(0);
+    final metaBox = HiveService.metaBox();
+
+    _companies = box.values.toList();
+    _activeIndex = metaBox.get(HiveService.activeCompanyKey);
+
+    if (_activeIndex != null &&
+        (_activeIndex! < 0 || _activeIndex! >= _companies.length)) {
+      _activeIndex = null;
     }
+
+    if (_activeIndex == null && _companies.length == 1) {
+      _activeIndex = 0;
+      await _persistActiveIndex();
+    }
+
     notifyListeners();
   }
 
-  Future<void> updateProfile(CompanyProfile profile) async {
+  Future<void> addCompany(CompanyProfile profile) async {
     final box = HiveService.companyBox();
-    if (box.isEmpty) {
-      await box.add(profile);
-    } else {
-      await box.putAt(0, profile);
+    await box.add(profile);
+    _companies = box.values.toList();
+    _activeIndex = _companies.isNotEmpty ? _companies.length - 1 : null;
+    await _persistActiveIndex();
+    notifyListeners();
+  }
+
+  Future<void> updateCompany(int index, CompanyProfile profile) async {
+    final box = HiveService.companyBox();
+    if (index < 0 || index >= box.length) return;
+    await box.putAt(index, profile);
+    _companies[index] = profile;
+    notifyListeners();
+  }
+
+  Future<void> deleteCompany(int index) async {
+    final box = HiveService.companyBox();
+    if (index < 0 || index >= box.length) return;
+    await box.deleteAt(index);
+    _companies = box.values.toList();
+
+    if (_activeIndex != null) {
+      if (_companies.isEmpty) {
+        _activeIndex = null;
+      } else if (_activeIndex == index) {
+        _activeIndex = index.clamp(0, _companies.length - 1).toInt();
+      } else if (_activeIndex! > index) {
+        _activeIndex = _activeIndex! - 1;
+      }
+      await _persistActiveIndex();
     }
-    _profile = profile;
+
+    notifyListeners();
+  }
+
+  Future<void> setActiveCompany(int index) async {
+    if (index < 0 || index >= _companies.length) return;
+    _activeIndex = index;
+    await _persistActiveIndex();
     notifyListeners();
   }
 
@@ -68,6 +121,15 @@ class CompanyService extends ChangeNotifier {
       }
     }
     return newPath;
+  }
+
+  Future<void> _persistActiveIndex() async {
+    final metaBox = HiveService.metaBox();
+    if (_activeIndex == null) {
+      await metaBox.delete(HiveService.activeCompanyKey);
+    } else {
+      await metaBox.put(HiveService.activeCompanyKey, _activeIndex!);
+    }
   }
 
   String _mimeType(String? path) {
