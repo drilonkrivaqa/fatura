@@ -22,7 +22,7 @@ class InvoiceFormPage extends StatefulWidget {
   State createState() => _InvoiceFormPageState();
 }
 
-class _InvoiceFormPageState extends State {
+class _InvoiceFormPageState extends State<InvoiceFormPage> {
   final _formKey = GlobalKey<FormState>();
 
   String? _selectedClientId;
