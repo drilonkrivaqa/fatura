@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -19,9 +20,19 @@ class PdfService {
     Client? client,
     AppSettings settings,
   ) async {
-    final pdf = pw.Document();
-    final currency = settings.currencySymbol;
+    final baseFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Regular.ttf'),
+    );
+    final boldFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Bold.ttf'),
+    );
 
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: baseFont,
+        bold: boldFont,
+      ),
+    );    final currency = settings.currencySymbol;
     final billToName = invoice.clientName.isNotEmpty
         ? invoice.clientName
         : client?.name ?? '';
