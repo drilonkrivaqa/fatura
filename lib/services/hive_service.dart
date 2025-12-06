@@ -11,8 +11,6 @@ class HiveService {
   static const String clientsBoxName = 'clients';
   static const String invoicesBoxName = 'invoices';
   static const String settingsBoxName = 'settings';
-  static const String metaBoxName = 'meta';
-  static const String activeCompanyKey = 'activeCompanyIndex';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -40,7 +38,6 @@ class HiveService {
     await Hive.openBox<Client>(clientsBoxName);
     await Hive.openBox<Invoice>(invoicesBoxName);
     await Hive.openBox<AppSettings>(settingsBoxName);
-    await Hive.openBox<int>(metaBoxName);
   }
 
   static Box<CompanyProfile> companyBox() => Hive.box<CompanyProfile>(companyBoxName);
@@ -50,6 +47,4 @@ class HiveService {
   static Box<Invoice> invoicesBox() => Hive.box<Invoice>(invoicesBoxName);
 
   static Box<AppSettings> settingsBox() => Hive.box<AppSettings>(settingsBoxName);
-
-  static Box<int> metaBox() => Hive.box<int>(metaBoxName);
 }
