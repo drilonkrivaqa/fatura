@@ -10,6 +10,7 @@ class SettingsService extends ChangeNotifier {
     defaultPaymentTerms: 14,
     lastInvoiceNumber: 0,
     themeMode: 'system',
+    localeCode: 'en',
   );
 
   AppSettings get settings => _settings;
@@ -72,6 +73,11 @@ class SettingsService extends ChangeNotifier {
 
   Future<void> setThemeMode(String mode) async {
     final newSettings = _settings.copyWith(themeMode: mode);
+    await updateSettings(newSettings);
+  }
+
+  Future<void> setLocale(String localeCode) async {
+    final newSettings = _settings.copyWith(localeCode: localeCode);
     await updateSettings(newSettings);
   }
 

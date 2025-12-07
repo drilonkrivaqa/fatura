@@ -4,6 +4,7 @@ import 'clients_page.dart';
 import 'dashboard_page.dart';
 import 'invoices_page.dart';
 import 'settings_page.dart';
+import '../l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,7 +27,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SmartInvoice'),
+        title: Text(context.l10n.appTitle),
       ),
       body: IndexedStack(
         index: _selectedIndex,
@@ -39,11 +40,11 @@ class _HomePageState extends State<HomePage> {
             _selectedIndex = index;
           });
         },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
-          NavigationDestination(icon: Icon(Icons.receipt_long), label: 'Invoices'),
-          NavigationDestination(icon: Icon(Icons.people_alt_outlined), label: 'Clients'),
-          NavigationDestination(icon: Icon(Icons.settings_outlined), label: 'Settings'),
+        destinations: [
+          NavigationDestination(icon: const Icon(Icons.dashboard_outlined), label: context.l10n.dashboard),
+          NavigationDestination(icon: const Icon(Icons.receipt_long), label: context.l10n.invoices),
+          NavigationDestination(icon: const Icon(Icons.people_alt_outlined), label: context.l10n.clients),
+          NavigationDestination(icon: const Icon(Icons.settings_outlined), label: context.l10n.settings),
         ],
       ),
     );
