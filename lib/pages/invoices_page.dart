@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/invoice.dart';
 import '../services/invoice_service.dart';
+import '../l10n/app_localizations.dart';
 import 'invoice_detail_page.dart';
 import 'invoice_form_page.dart';
 
@@ -40,9 +41,9 @@ class _InvoicesPageState extends State {
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Search by invoice # or client',
-                      prefixIcon: Icon(Icons.search),
+                    decoration: InputDecoration(
+                      hintText: context.l10n.searchInvoice,
+                      prefixIcon: const Icon(Icons.search),
                     ),
                     onChanged: (val) => setState(() => _search = val),
                   ),
@@ -50,23 +51,23 @@ class _InvoicesPageState extends State {
                 const SizedBox(width: 12),
                 DropdownButton<InvoiceStatus?>(
                   value: _filterStatus,
-                  hint: const Text('Status'),
-                  items: const [
+                  hint: Text(context.l10n.status),
+                  items: [
                     DropdownMenuItem(
                       value: null,
-                      child: Text('All'),
+                      child: Text(context.l10n.all),
                     ),
                     DropdownMenuItem(
                       value: InvoiceStatus.paid,
-                      child: Text('Paid'),
+                      child: Text(context.l10n.paid),
                     ),
                     DropdownMenuItem(
                       value: InvoiceStatus.unpaid,
-                      child: Text('Unpaid'),
+                      child: Text(context.l10n.unpaid),
                     ),
                     DropdownMenuItem(
                       value: InvoiceStatus.partial,
-                      child: Text('Partial'),
+                      child: Text(context.l10n.partial),
                     ),
                   ],
                   onChanged: (value) =>
@@ -83,14 +84,14 @@ class _InvoicesPageState extends State {
                     );
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('New'),
+                  label: Text(context.l10n.newLabel),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Expanded(
               child: filtered.isEmpty
-                  ? const Center(child: Text('No invoices yet.'))
+                  ? Center(child: Text(context.l10n.noInvoicesYet))
                   : ListView.separated(
                 itemCount: filtered.length,
                 separatorBuilder: (_, __) => const Divider(),
@@ -138,20 +139,20 @@ class _InvoicesPageState extends State {
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(
-                                    title: const Text('Delete invoice'),
-                                    content: const Text(
-                                      'Are you sure you want to delete this invoice? This action cannot be undone.',
+                                    title: Text(context.l10n.deleteInvoice),
+                                    content: Text(
+                                      context.l10n.deleteInvoiceQuestion,
                                     ),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.pop(context, false),
-                                        child: const Text('Cancel'),
+                                        child: Text(context.l10n.cancel),
                                       ),
                                       FilledButton(
                                         onPressed: () =>
                                             Navigator.pop(context, true),
-                                        child: const Text('Delete'),
+                                        child: Text(context.l10n.delete),
                                       ),
                                     ],
                                   );
@@ -165,14 +166,14 @@ class _InvoicesPageState extends State {
                               }
                             }
                           },
-                          itemBuilder: (context) => const [
+                          itemBuilder: (context) => [
                             PopupMenuItem(
                               value: 'edit',
-                              child: Text('Edit'),
+                              child: Text(context.l10n.edit),
                             ),
                             PopupMenuItem(
                               value: 'delete',
-                              child: Text('Delete'),
+                              child: Text(context.l10n.delete),
                             ),
                           ],
                           icon: const Icon(Icons.more_vert),

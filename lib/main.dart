@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/home_page.dart';
+import 'l10n/app_localizations.dart';
 import 'services/client_service.dart';
 import 'services/company_service.dart';
 import 'services/hive_service.dart';
@@ -28,7 +29,7 @@ class SmartInvoiceApp extends StatelessWidget {
       ],
       child: Consumer<SettingsService>(
         builder: (context, settingsService, _) => MaterialApp(
-          title: 'SmartInvoice',
+          onGenerateTitle: (context) => context.l10n.appTitle,
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
@@ -41,6 +42,9 @@ class SmartInvoiceApp extends StatelessWidget {
             useMaterial3: true,
           ),
           themeMode: settingsService.currentThemeMode,
+          locale: Locale(settingsService.settings.localeCode),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: const HomePage(),
         ),
       ),
