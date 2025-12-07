@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/company_profile.dart';
-import '../l10n/app_localizations.dart';
 import '../services/company_service.dart';
 import '../services/settings_service.dart';
 
@@ -37,7 +36,6 @@ class _SettingsPageState extends State {
   late TextEditingController _currencyController;
   late TextEditingController _vatController;
   late TextEditingController _termsController;
-  late String _localeCode;
 
   @override
   void initState() {
@@ -66,7 +64,6 @@ class _SettingsPageState extends State {
         TextEditingController(text: settings.defaultVatRate.toString());
     _termsController =
         TextEditingController(text: settings.defaultPaymentTerms.toString());
-    _localeCode = settings.localeCode;
   }
 
   @override
@@ -136,7 +133,7 @@ class _SettingsPageState extends State {
           child: ListView(
             children: [
               Text(
-                context.l10n.companyProfile,
+                'Company profile',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
@@ -155,19 +152,21 @@ class _SettingsPageState extends State {
                   TextButton.icon(
                     onPressed: _pickLogo,
                     icon: const Icon(Icons.upload),
-                    label: Text(context.l10n.uploadLogo),
+                    label: const Text('Upload logo'),
                   )
                 ],
               ),
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: context.l10n.companyName),
+                decoration:
+                const InputDecoration(labelText: 'Company name'),
                 validator: (val) =>
-                val == null || val.isEmpty ? context.l10n.required : null,
+                val == null || val.isEmpty ? 'Required' : null,
               ),
               TextFormField(
                 controller: _addressController,
-                decoration: InputDecoration(labelText: context.l10n.address),
+                decoration:
+                const InputDecoration(labelText: 'Address'),
               ),
               Row(
                 children: [
@@ -229,7 +228,7 @@ class _SettingsPageState extends State {
               ),
               const SizedBox(height: 16),
               Text(
-                context.l10n.defaults,
+                'Defaults',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
@@ -238,8 +237,8 @@ class _SettingsPageState extends State {
                   Expanded(
                     child: TextFormField(
                       controller: _currencyController,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.currencySymbol,
+                      decoration: const InputDecoration(
+                        labelText: 'Currency symbol',
                       ),
                     ),
                   ),
@@ -247,8 +246,8 @@ class _SettingsPageState extends State {
                   Expanded(
                     child: TextFormField(
                       controller: _vatController,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.defaultVat,
+                      decoration: const InputDecoration(
+                        labelText: 'Default VAT %',
                       ),
                       keyboardType: TextInputType.number,
                     ),
@@ -257,50 +256,22 @@ class _SettingsPageState extends State {
                   Expanded(
                     child: TextFormField(
                       controller: _termsController,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.paymentTermsDays,
+                      decoration: const InputDecoration(
+                        labelText: 'Payment terms (days)',
                       ),
                       keyboardType: TextInputType.number,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.language,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _localeCode,
-                decoration: InputDecoration(labelText: context.l10n.language),
-                items: [
-                  DropdownMenuItem(
-                    value: 'en',
-                    child: Text(context.l10n.english),
-                  ),
-                  DropdownMenuItem(
-                    value: 'sq',
-                    child: Text(context.l10n.albanian),
-                  ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _localeCode = value;
-                    });
-                    context.read<SettingsService>().setLocale(value);
-                  }
-                },
-              ),
               const SizedBox(height: 24),
               Text(
-                context.l10n.appearanceTheme,
+                'Appearance / Theme',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
               RadioListTile<String>(
-                title: Text(context.l10n.system),
+                title: const Text('System'),
                 value: 'system',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -310,7 +281,7 @@ class _SettingsPageState extends State {
                 },
               ),
               RadioListTile<String>(
-                title: Text(context.l10n.light),
+                title: const Text('Light'),
                 value: 'light',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -320,7 +291,7 @@ class _SettingsPageState extends State {
                 },
               ),
               RadioListTile<String>(
-                title: Text(context.l10n.dark),
+                title: const Text('Dark'),
                 value: 'dark',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -362,20 +333,19 @@ class _SettingsPageState extends State {
                     lastInvoiceNumber:
                     settingsService.settings.lastInvoiceNumber,
                     themeMode: settingsService.settings.themeMode,
-                    localeCode: _localeCode,
                   );
 
                   await settingsService.updateSettings(newSettings);
 
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(context.l10n.settingsSaved),
+                      const SnackBar(
+                        content: Text('Settings saved'),
                       ),
                     );
                   }
                 },
-                child: Text(context.l10n.saveSettings),
+                child: const Text('Save settings'),
               ),
             ],
           ),
