@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../l10n.dart';
 import '../services/client_service.dart';
 import 'client_form_page.dart';
 
@@ -37,8 +36,8 @@ class _ClientsPageState extends State {
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: InputDecoration(
-                      hintText: context.t('Search clients'),
+                    decoration: const InputDecoration(
+                      hintText: 'Search clients',
                       prefixIcon: Icon(Icons.search),
                     ),
                     onChanged: (value) {
@@ -60,14 +59,14 @@ class _ClientsPageState extends State {
                     );
                   },
                   icon: const Icon(Icons.add),
-                  label: Text(context.t('New')),
+                  label: const Text('New'),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Expanded(
               child: filtered.isEmpty
-                  ? Center(child: Text(context.t('No clients yet.')))
+                  ? const Center(child: Text('No clients yet.'))
                   : ListView.separated(
                 itemCount: filtered.length,
                 separatorBuilder: (_, __) => const Divider(),
@@ -103,22 +102,22 @@ class _ClientsPageState extends State {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title:
-                                Text(context.t('Delete client')),
-                                content: Text(
-                                  context.t('Are you sure you want to delete this client?'),
+                                const Text('Delete client'),
+                                content: const Text(
+                                  'Are you sure you want to delete this client?',
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed: () =>
                                         Navigator.pop(
                                             ctx, false),
-                                    child: Text(context.t('Cancel')),
+                                    child: const Text('Cancel'),
                                   ),
                                   FilledButton(
                                     onPressed: () =>
                                         Navigator.pop(
                                             ctx, true),
-                                    child: Text(context.t('Delete')),
+                                    child: const Text('Delete'),
                                   ),
                                 ],
                               ),

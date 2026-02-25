@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../l10n.dart';
 import '../models/client.dart';
 import '../services/client_service.dart';
 
@@ -53,7 +52,7 @@ class _ClientFormPageState extends State<ClientFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.isEditing ? context.t('Edit client') : context.t('Create client'))),
+      appBar: AppBar(title: Text(widget.isEditing ? 'Edit client' : 'New client')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -62,41 +61,41 @@ class _ClientFormPageState extends State<ClientFormPage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: context.t('Client name')),
-                validator: (val) => val == null || val.isEmpty ? context.t('Required') : null,
+                decoration: const InputDecoration(labelText: 'Name'),
+                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
               TextFormField(
                 controller: _addressController,
-                decoration: InputDecoration(labelText: context.t('Address')),
+                decoration: const InputDecoration(labelText: 'Address'),
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _cityController,
-                      decoration: InputDecoration(labelText: context.t('City')),
+                      decoration: const InputDecoration(labelText: 'City'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _countryController,
-                      decoration: InputDecoration(labelText: context.t('Country')),
+                      decoration: const InputDecoration(labelText: 'Country'),
                     ),
                   ),
                 ],
               ),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: context.t('Email')),
+                decoration: const InputDecoration(labelText: 'Email'),
               ),
               TextFormField(
                 controller: _phoneController,
-                decoration: InputDecoration(labelText: context.t('Phone')),
+                decoration: const InputDecoration(labelText: 'Phone'),
               ),
               TextFormField(
                 controller: _taxController,
-                decoration: InputDecoration(labelText: context.t('Tax number')),
+                decoration: const InputDecoration(labelText: 'Tax number'),
               ),
               const SizedBox(height: 24),
               FilledButton(
@@ -120,7 +119,7 @@ class _ClientFormPageState extends State<ClientFormPage> {
                   }
                   if (mounted) Navigator.pop(context);
                 },
-                child: Text(widget.isEditing ? context.t('Update') : context.t('Save')),
+                child: Text(widget.isEditing ? 'Update' : 'Save'),
               )
             ],
           ),

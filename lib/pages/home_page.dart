@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../l10n.dart';
-
 import 'clients_page.dart';
 import 'dashboard_page.dart';
 import 'invoices_page.dart';
@@ -28,7 +26,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t('SmartInvoice')),
+        title: const Text('SmartInvoice'),
       ),
       body: IndexedStack(
         index: _selectedIndex,
@@ -41,11 +39,11 @@ class _HomePageState extends State<HomePage> {
             _selectedIndex = index;
           });
         },
-        destinations: [
-          NavigationDestination(icon: const Icon(Icons.dashboard_outlined), label: context.t('Dashboard')),
-          NavigationDestination(icon: const Icon(Icons.receipt_long), label: context.t('Invoices')),
-          NavigationDestination(icon: const Icon(Icons.people_alt_outlined), label: context.t('Clients')),
-          NavigationDestination(icon: const Icon(Icons.settings_outlined), label: context.t('Settings')),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
+          NavigationDestination(icon: Icon(Icons.receipt_long), label: 'Invoices'),
+          NavigationDestination(icon: Icon(Icons.people_alt_outlined), label: 'Clients'),
+          NavigationDestination(icon: Icon(Icons.settings_outlined), label: 'Settings'),
         ],
       ),
     );

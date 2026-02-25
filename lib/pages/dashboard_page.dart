@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../l10n.dart';
 import '../models/invoice.dart';
 import '../services/client_service.dart';
 import '../services/invoice_service.dart';
@@ -27,7 +26,7 @@ class DashboardPage extends StatelessWidget {
       child: ListView(
         children: [
           Text(
-            context.t('Overview'),
+            'Overview',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 12),
@@ -36,27 +35,27 @@ class DashboardPage extends StatelessWidget {
             runSpacing: 12,
             children: [
               _StatCard(
-                title: context.t('Clients'),
+                title: 'Clients',
                 value: clients.length.toString(),
                 icon: Icons.people_alt,
               ),
               _StatCard(
-                title: context.t('Invoices'),
+                title: 'Invoices',
                 value: invoices.length.toString(),
                 icon: Icons.receipt_long,
               ),
               _StatCard(
-                title: context.t('Paid'),
+                title: 'Paid',
                 value: paidCount.toString(),
                 icon: Icons.check_circle_outline,
               ),
               _StatCard(
-                title: context.t('Unpaid'),
+                title: 'Unpaid',
                 value: unpaidCount.toString(),
                 icon: Icons.warning_amber_rounded,
               ),
               _StatCard(
-                title: context.t('Total billed'),
+                title: 'Total billed',
                 value: totalAmount.toStringAsFixed(2),
                 icon: Icons.attach_money,
               ),
@@ -64,7 +63,7 @@ class DashboardPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            context.t('Recent invoices'),
+            'Recent invoices',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
@@ -88,10 +87,10 @@ class DashboardPage extends StatelessWidget {
             ),
           ),
           if (invoices.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 32.0),
+            const Padding(
+              padding: EdgeInsets.only(top: 32.0),
               child: Center(
-                child: Text(context.t('No invoices yet.\nCreate your first invoice!')),
+                child: Text('No invoices yet.\nCreate your first invoice!'),
               ),
             ),
         ],
