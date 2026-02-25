@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/app_settings.dart';
 import '../models/company_profile.dart';
 import '../services/company_service.dart';
@@ -174,6 +175,7 @@ class _SettingsPageState extends State<SettingsPage> {
       defaultPaymentTerms: int.tryParse(_termsController.text) ?? 0,
       lastInvoiceNumber: settingsService.settings.lastInvoiceNumber,
       themeMode: settingsService.settings.themeMode,
+      localeCode: settingsService.settings.localeCode,
     );
     await settingsService.updateSettings(newSettings);
   }
@@ -423,6 +425,24 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 24),
+              Text(
+                context.l10n.tr('language'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: settingsService.settings.localeCode,
+                items: [
+                  DropdownMenuItem(value: 'en', child: Text(context.l10n.tr('english'))),
+                  DropdownMenuItem(value: 'sq', child: Text(context.l10n.tr('albanian'))),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<SettingsService>().setLocaleCode(value);
+                  }
+                },
               ),
               const SizedBox(height: 24),
               Text(

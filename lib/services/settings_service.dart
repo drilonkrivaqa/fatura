@@ -10,6 +10,7 @@ class SettingsService extends ChangeNotifier {
     defaultPaymentTerms: 14,
     lastInvoiceNumber: 0,
     themeMode: 'system',
+    localeCode: 'en',
   );
 
   AppSettings get settings => _settings;
@@ -17,6 +18,8 @@ class SettingsService extends ChangeNotifier {
   SettingsService() {
     loadSettings();
   }
+
+  Locale get currentLocale => Locale(_settings.localeCode);
 
   ThemeMode get currentThemeMode {
     switch (_settings.themeMode) {
@@ -39,6 +42,10 @@ class SettingsService extends ChangeNotifier {
           var updatedSettings = storedSettings;
           if (updatedSettings.themeMode.isEmpty) {
             updatedSettings = storedSettings.copyWith(themeMode: 'system');
+            box.putAt(0, updatedSettings);
+          }
+          if (updatedSettings.localeCode.isEmpty) {
+            updatedSettings = updatedSettings.copyWith(localeCode: 'en');
             box.putAt(0, updatedSettings);
           }
           _settings = updatedSettings;
@@ -72,6 +79,11 @@ class SettingsService extends ChangeNotifier {
 
   Future<void> setThemeMode(String mode) async {
     final newSettings = _settings.copyWith(themeMode: mode);
+    await updateSettings(newSettings);
+  }
+
+  Future<void> setLocaleCode(String localeCode) async {
+    final newSettings = _settings.copyWith(localeCode: localeCode);
     await updateSettings(newSettings);
   }
 
