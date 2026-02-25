@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../l10n.dart';
 import '../models/app_settings.dart';
 import '../models/company_profile.dart';
 import '../services/company_service.dart';
@@ -192,7 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListView(
             children: [
               Text(
-                context.t('Company profiles'),
+                'Company profiles',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
@@ -201,7 +200,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _editingCompanyId,
-                      hint: Text(context.t('Select company to edit')),
+                      hint: const Text('Select company to edit'),
                       items: companyService.companies
                           .map(
                             (c) => DropdownMenuItem<String>(
@@ -229,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   OutlinedButton.icon(
                     onPressed: () => setState(_resetCompanyForm),
                     icon: const Icon(Icons.add_business_outlined),
-                    label: Text(context.t('New')),
+                    label: const Text('New'),
                   ),
                 ],
               ),
@@ -250,33 +249,33 @@ class _SettingsPageState extends State<SettingsPage> {
                   TextButton.icon(
                     onPressed: _pickLogo,
                     icon: const Icon(Icons.upload),
-                    label: Text(context.t('Upload logo')),
+                    label: const Text('Upload logo'),
                   )
                 ],
               ),
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: context.t('Company name')),
+                decoration: const InputDecoration(labelText: 'Company name'),
                 validator: (val) =>
-                    val == null || val.isEmpty ? context.t('Required') : null,
+                    val == null || val.isEmpty ? 'Required' : null,
               ),
               TextFormField(
                 controller: _addressController,
-                decoration: InputDecoration(labelText: context.t('Address')),
+                decoration: const InputDecoration(labelText: 'Address'),
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _cityController,
-                      decoration: InputDecoration(labelText: context.t('City')),
+                      decoration: const InputDecoration(labelText: 'City'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _countryController,
-                      decoration: InputDecoration(labelText: context.t('Country')),
+                      decoration: const InputDecoration(labelText: 'Country'),
                     ),
                   ),
                 ],
@@ -286,33 +285,33 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _phoneController,
-                      decoration: InputDecoration(labelText: context.t('Phone')),
+                      decoration: const InputDecoration(labelText: 'Phone'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration(labelText: context.t('Email')),
+                      decoration: const InputDecoration(labelText: 'Email'),
                     ),
                   ),
                 ],
               ),
               TextFormField(
                 controller: _taxController,
-                decoration: InputDecoration(labelText: context.t('Tax number')),
+                decoration: const InputDecoration(labelText: 'Tax number'),
               ),
               TextFormField(
                 controller: _bankController,
-                decoration: InputDecoration(labelText: context.t('Bank name')),
+                decoration: const InputDecoration(labelText: 'Bank name'),
               ),
               TextFormField(
                 controller: _ibanController,
-                decoration: InputDecoration(labelText: context.t('IBAN')),
+                decoration: const InputDecoration(labelText: 'IBAN'),
               ),
               TextFormField(
                 controller: _websiteController,
-                decoration: InputDecoration(labelText: context.t('Website')),
+                decoration: const InputDecoration(labelText: 'Website'),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -327,15 +326,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(context.t('Company saved'))),
+                          const SnackBar(content: Text('Company saved')),
                         );
                       }
                     },
                     icon: const Icon(Icons.save_outlined),
                     label: Text(
                       _editingCompanyId == null
-                          ? context.t('Save company')
-                          : context.t('Update company'),
+                          ? 'Save company'
+                          : 'Update company',
                     ),
                   ),
                   OutlinedButton.icon(
@@ -347,12 +346,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       if (mounted) {
                         setState(() => _editingCompanyId = company.id);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(context.t('Saved as new company'))),
+                          const SnackBar(content: Text('Saved as new company')),
                         );
                       }
                     },
                     icon: const Icon(Icons.copy_outlined),
-                    label: Text(context.t('Save as new')),
+                    label: const Text('Save as new'),
                   ),
                   if (_editingCompanyId != null)
                     OutlinedButton.icon(
@@ -361,18 +360,18 @@ class _SettingsPageState extends State<SettingsPage> {
                         final shouldDelete = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: Text(context.t('Delete company')),
+                            title: const Text('Delete company'),
                             content: Text(
-                              '${context.t('Delete')} "$companyName"? ${context.t('Existing invoices keep their saved company snapshot.')}',
+                              'Delete "$companyName"? Existing invoices keep their saved company snapshot.',
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: Text(context.t('Cancel')),
+                                child: const Text('Cancel'),
                               ),
                               FilledButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: Text(context.t('Delete')),
+                                child: const Text('Delete'),
                               ),
                             ],
                           ),
@@ -383,13 +382,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         }
                       },
                       icon: const Icon(Icons.delete_outline),
-                      label: Text(context.t('Delete company')),
+                      label: const Text('Delete company'),
                     ),
                 ],
               ),
               const SizedBox(height: 20),
               Text(
-                context.t('Defaults'),
+                'Defaults',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
@@ -398,8 +397,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _currencyController,
-                      decoration: InputDecoration(
-                        labelText: context.t('Currency symbol')
+                      decoration: const InputDecoration(
+                        labelText: 'Currency symbol',
                       ),
                     ),
                   ),
@@ -407,8 +406,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _vatController,
-                      decoration: InputDecoration(
-                        labelText: context.t('Default VAT %')
+                      decoration: const InputDecoration(
+                        labelText: 'Default VAT %',
                       ),
                       keyboardType: TextInputType.number,
                     ),
@@ -417,8 +416,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _termsController,
-                      decoration: InputDecoration(
-                        labelText: context.t('Payment terms (days)')
+                      decoration: const InputDecoration(
+                        labelText: 'Payment terms (days)',
                       ),
                       keyboardType: TextInputType.number,
                     ),
@@ -427,12 +426,12 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 24),
               Text(
-                context.t('Appearance / Theme'),
+                'Appearance / Theme',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
               RadioListTile<String>(
-                title: Text(context.t('System')),
+                title: const Text('System'),
                 value: 'system',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -442,7 +441,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
               RadioListTile<String>(
-                title: Text(context.t('Light')),
+                title: const Text('Light'),
                 value: 'light',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -452,7 +451,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
               RadioListTile<String>(
-                title: Text(context.t('Dark')),
+                title: const Text('Dark'),
                 value: 'dark',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -467,11 +466,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   await _saveDefaults(settingsService);
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.t('Defaults saved'))),
+                      const SnackBar(content: Text('Defaults saved')),
                     );
                   }
                 },
-                child: Text(context.t('Save defaults')),
+                child: const Text('Save defaults'),
               ),
             ],
           ),
