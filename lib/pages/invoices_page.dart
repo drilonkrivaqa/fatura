@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/invoice.dart';
-import '../services/company_service.dart';
 import '../services/invoice_service.dart';
 import 'invoice_detail_page.dart';
 import 'invoice_form_page.dart';
@@ -22,7 +21,6 @@ class _InvoicesPageState extends State {
   Widget build(BuildContext context) {
     // ✅ Typed provider
     final invoices = context.watch<InvoiceService>().invoices;
-    final companyService = context.watch<CompanyService>();
 
     final filtered = invoices.where((inv) {
       final matchesSearch =
@@ -98,8 +96,6 @@ class _InvoicesPageState extends State {
                 separatorBuilder: (_, __) => const Divider(),
                 itemBuilder: (context, index) {
                   final invoice = filtered[index];
-                  final companyName =
-                      companyService.findById(invoice.companyId)?.name ?? 'Unknown company';
                   return ListTile(
                     leading: Icon(
                       invoice.status == InvoiceStatus.paid
@@ -117,7 +113,7 @@ class _InvoicesPageState extends State {
                     ),
                     title: Text(invoice.invoiceNumber),
                     subtitle: Text(
-                      '$companyName • ${invoice.clientName}\n${invoice.date.toLocal().toString().split(' ').first}',
+                      '${invoice.clientName}\n${invoice.date.toLocal().toString().split(' ').first}',
                     ),
                     isThreeLine: true,
                     trailing: Row(

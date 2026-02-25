@@ -6,7 +6,6 @@ import 'package:uuid/uuid.dart';
 import '../models/invoice.dart';
 import '../models/invoice_item.dart';
 import '../services/client_service.dart';
-import '../services/company_service.dart';
 import '../services/invoice_service.dart';
 import '../services/settings_service.dart';
 import '../utils/number_to_words.dart';
@@ -26,7 +25,6 @@ class InvoiceFormPage extends StatefulWidget {
 class _InvoiceFormPageState extends State<InvoiceFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String? _selectedCompanyId;
   String? _selectedClientId;
   bool _useManualClient = false;
   DateTime _invoiceDate = DateTime.now();
@@ -63,13 +61,9 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
     _manualTaxNumberController = TextEditingController();
 
     final settings = context.read<SettingsService>().settings;
-    final companyService = context.read<CompanyService>();
 
     if (widget.existingInvoice != null) {
       final invoice = widget.existingInvoice!;
-      _selectedCompanyId = invoice.companyId.isNotEmpty
-          ? invoice.companyId
-          : companyService.selectedCompanyId;
       _selectedClientId = invoice.clientId.isNotEmpty ? invoice.clientId : null;
       _useManualClient = invoice.clientId.isEmpty;
       _invoiceDate = invoice.date;
@@ -94,7 +88,6 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
           _invoiceDate.add(Duration(days: settings.defaultPaymentTerms));
       _currencyWord =
           settings.currencySymbol == '€' ? 'euro' : settings.currencySymbol;
-      _selectedCompanyId = companyService.selectedCompanyId;
     }
 
     _recalculateTotals(updateState: false);
@@ -134,7 +127,6 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
   @override
   Widget build(BuildContext context) {
     // ✅ Typed providers
-    final companies = context.watch<CompanyService>().companies;
     final clients = context.watch<ClientService>().clients;
     final settings = context.watch<SettingsService>().settings;
     final currency = settings.currencySymbol;
@@ -159,30 +151,6 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
           key: _formKey,
           child: ListView(
             children: [
-              DropdownButtonFormField<String>(
-                value: _selectedCompanyId,
-                decoration: const InputDecoration(labelText: 'Select company'),
-                items: companies
-                    .map(
-                      (company) => DropdownMenuItem<String>(
-                        value: company.id,
-                        child: Text(company.name),
-                      ),
-                    )
-                    .toList(),
-                onChanged: companies.isEmpty
-                    ? null
-                    : (value) => setState(() => _selectedCompanyId = value),
-                validator: (value) => value == null ? 'Choose company' : null,
-              ),
-              if (companies.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    'Create at least one company profile from Settings before creating invoices.',
-                  ),
-                ),
-              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _useManualClient ? null : _selectedClientId,
                 decoration: const InputDecoration(labelText: 'Select client'),
@@ -666,20 +634,9 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
 
                   final settingsService = context.read<SettingsService>();
                   final invoiceService = context.read<InvoiceService>();
-                  final companyId = _selectedCompanyId ?? '';
-
-                  if (companyId.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select a company'),
-                      ),
-                    );
-                    return;
-                  }
 
                   if (widget.existingInvoice != null) {
                     final updatedInvoice = widget.existingInvoice!.copyWith(
-                      companyId: companyId,
                       clientId: clientSnapshot.id,
                       clientName: clientSnapshot.name,
                       clientAddress: clientSnapshot.address,
@@ -709,7 +666,6 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     final invoice = Invoice(
                       id: const Uuid().v4(),
                       invoiceNumber: invoiceNumber,
-                      companyId: companyId,
                       clientId: clientSnapshot.id,
                       clientName: clientSnapshot.name,
                       clientAddress: clientSnapshot.address,

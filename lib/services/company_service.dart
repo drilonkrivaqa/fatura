@@ -6,27 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
 
 import '../models/company_profile.dart';
 import 'hive_service.dart';
 
 class CompanyService extends ChangeNotifier {
-  List<CompanyProfile> _companies = [];
-  String? _selectedCompanyId;
+  CompanyProfile? _profile;
 
-  List<CompanyProfile> get companies => _companies;
-  String? get selectedCompanyId => _selectedCompanyId;
-  CompanyProfile? get selectedCompany {
-    if (_companies.isEmpty) return null;
-    return _companies.firstWhere(
-      (company) => company.id == _selectedCompanyId,
-      orElse: () => _companies.first,
-    );
-  }
-
-  // Backward compatibility for old call sites.
-  CompanyProfile? get profile => selectedCompany;
+  CompanyProfile? get profile => _profile;
 
   CompanyService() {
     loadProfile();
@@ -34,50 +21,21 @@ class CompanyService extends ChangeNotifier {
 
   Future<void> loadProfile() async {
     final box = HiveService.companyBox();
-    _companies = box.values
-        .map((company) => company.id.isEmpty
-            ? company.copyWith(id: const Uuid().v4())
-            : company)
-        .toList();
-
-    if (_companies.isNotEmpty) {
-      _selectedCompanyId = _selectedCompanyId ?? _companies.first.id;
-
-      await box.clear();
-      for (final company in _companies) {
-        await box.put(company.id, company);
-      }
+    if (box.isNotEmpty) {
+      _profile = box.getAt(0);
     }
     notifyListeners();
   }
 
   Future<void> updateProfile(CompanyProfile profile) async {
     final box = HiveService.companyBox();
-    await box.put(profile.id, profile);
-
-    final existingIndex = _companies.indexWhere((c) => c.id == profile.id);
-    if (existingIndex >= 0) {
-      _companies[existingIndex] = profile;
+    if (box.isEmpty) {
+      await box.add(profile);
     } else {
-      _companies.add(profile);
+      await box.putAt(0, profile);
     }
-
-    _selectedCompanyId = profile.id;
+    _profile = profile;
     notifyListeners();
-  }
-
-  Future<void> selectCompany(String? companyId) async {
-    if (companyId == null || companyId == _selectedCompanyId) return;
-    _selectedCompanyId = companyId;
-    notifyListeners();
-  }
-
-  CompanyProfile? findById(String id) {
-    try {
-      return _companies.firstWhere((company) => company.id == id);
-    } catch (_) {
-      return null;
-    }
   }
 
   // Copies the logo to application directory so the path remains valid
