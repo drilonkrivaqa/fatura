@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/invoice.dart';
 import '../services/invoice_service.dart';
 import 'invoice_detail_page.dart';
@@ -19,15 +20,12 @@ class _InvoicesPageState extends State {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Typed provider
     final invoices = context.watch<InvoiceService>().invoices;
 
     final filtered = invoices.where((inv) {
-      final matchesSearch =
-          inv.invoiceNumber.toLowerCase().contains(_search.toLowerCase()) ||
-              inv.clientName.toLowerCase().contains(_search.toLowerCase());
-      final matchesStatus =
-          _filterStatus == null || inv.status == _filterStatus;
+      final matchesSearch = inv.invoiceNumber.toLowerCase().contains(_search.toLowerCase()) ||
+          inv.clientName.toLowerCase().contains(_search.toLowerCase());
+      final matchesStatus = _filterStatus == null || inv.status == _filterStatus;
       return matchesSearch && matchesStatus;
     }).toList();
 
@@ -40,9 +38,9 @@ class _InvoicesPageState extends State {
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Search by invoice # or client',
-                      prefixIcon: Icon(Icons.search),
+                    decoration: InputDecoration(
+                      hintText: context.l10n.tr('searchInvoices'),
+                      prefixIcon: const Icon(Icons.search),
                     ),
                     onChanged: (val) => setState(() => _search = val),
                   ),
@@ -50,148 +48,125 @@ class _InvoicesPageState extends State {
                 const SizedBox(width: 12),
                 DropdownButton<InvoiceStatus?>(
                   value: _filterStatus,
-                  hint: const Text('Status'),
-                  items: const [
-                    DropdownMenuItem(
-                      value: null,
-                      child: Text('All'),
-                    ),
+                  hint: Text(context.l10n.tr('status')),
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(context.l10n.tr('all'))),
                     DropdownMenuItem(
                       value: InvoiceStatus.paid,
-                      child: Text('Paid'),
+                      child: Text(context.l10n.tr('paid')),
                     ),
                     DropdownMenuItem(
                       value: InvoiceStatus.unpaid,
-                      child: Text('Unpaid'),
+                      child: Text(context.l10n.tr('unpaid')),
                     ),
                     DropdownMenuItem(
                       value: InvoiceStatus.partial,
-                      child: Text('Partial'),
+                      child: Text(context.l10n.tr('partial')),
                     ),
                   ],
-                  onChanged: (value) =>
-                      setState(() => _filterStatus = value),
+                  onChanged: (value) => setState(() => _filterStatus = value),
                 ),
                 const SizedBox(width: 12),
                 FilledButton.icon(
                   onPressed: () async {
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const InvoiceFormPage(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const InvoiceFormPage()),
                     );
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('New'),
+                  label: Text(context.l10n.tr('new')),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Expanded(
               child: filtered.isEmpty
-                  ? const Center(child: Text('No invoices yet.'))
+                  ? Center(child: Text(context.l10n.tr('noInvoicesYet')))
                   : ListView.separated(
-                itemCount: filtered.length,
-                separatorBuilder: (_, __) => const Divider(),
-                itemBuilder: (context, index) {
-                  final invoice = filtered[index];
-                  return ListTile(
-                    leading: Icon(
-                      invoice.status == InvoiceStatus.paid
-                          ? Icons.check_circle
-                          : invoice.status ==
-                          InvoiceStatus.partial
-                          ? Icons.timelapse
-                          : Icons.pending_actions,
-                      color: invoice.status == InvoiceStatus.paid
-                          ? Colors.green
-                          : invoice.status ==
-                          InvoiceStatus.partial
-                          ? Colors.orange
-                          : Colors.red,
-                    ),
-                    title: Text(invoice.invoiceNumber),
-                    subtitle: Text(
-                      '${invoice.clientName}\n${invoice.date.toLocal().toString().split(' ').first}',
-                    ),
-                    isThreeLine: true,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          invoice.total.toStringAsFixed(2),
-                        ),
-                        PopupMenuButton<String>(
-                          onSelected: (value) async {
-                            if (value == 'edit') {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => InvoiceFormPage(
-                                    existingInvoice: invoice,
-                                  ),
-                                ),
-                              );
-                            } else if (value == 'delete') {
-                              final confirmed = await showDialog<bool>(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Delete invoice'),
-                                    content: const Text(
-                                      'Are you sure you want to delete this invoice? This action cannot be undone.',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      FilledButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, true),
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-
-                              if (confirmed == true) {
-                                await context
-                                    .read<InvoiceService>()
-                                    .deleteInvoice(invoice.id);
-                              }
-                            }
-                          },
-                          itemBuilder: (context) => const [
-                            PopupMenuItem(
-                              value: 'edit',
-                              child: Text('Edit'),
-                            ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                          ],
-                          icon: const Icon(Icons.more_vert),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => InvoiceDetailPage(
-                            invoiceId: invoice.id,
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final invoice = filtered[index];
+                        return ListTile(
+                          leading: Icon(
+                            invoice.status == InvoiceStatus.paid
+                                ? Icons.check_circle
+                                : invoice.status == InvoiceStatus.partial
+                                    ? Icons.timelapse
+                                    : Icons.pending_actions,
+                            color: invoice.status == InvoiceStatus.paid
+                                ? Colors.green
+                                : invoice.status == InvoiceStatus.partial
+                                    ? Colors.orange
+                                    : Colors.red,
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+                          title: Text(invoice.invoiceNumber),
+                          subtitle: Text(
+                            '${invoice.clientName}\n${invoice.date.toLocal().toString().split(' ').first}',
+                          ),
+                          isThreeLine: true,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(invoice.total.toStringAsFixed(2)),
+                              PopupMenuButton<String>(
+                                onSelected: (value) async {
+                                  if (value == 'edit') {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => InvoiceFormPage(existingInvoice: invoice),
+                                      ),
+                                    );
+                                  } else if (value == 'delete') {
+                                    final confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text(context.l10n.tr('deleteInvoice')),
+                                          content: Text(context.l10n.tr('deleteInvoiceConfirm')),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: Text(context.l10n.tr('cancel')),
+                                            ),
+                                            FilledButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: Text(context.l10n.tr('delete')),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+
+                                    if (confirmed == true) {
+                                      await context.read<InvoiceService>().deleteInvoice(invoice.id);
+                                    }
+                                  }
+                                },
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(value: 'edit', child: Text(context.l10n.tr('edit'))),
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text(context.l10n.tr('delete')),
+                                  ),
+                                ],
+                                icon: const Icon(Icons.more_vert),
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => InvoiceDetailPage(invoiceId: invoice.id),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),
