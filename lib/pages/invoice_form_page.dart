@@ -599,9 +599,9 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                 ),
               ),
               ListTile(
-                title: const Text(
+                title: Text(
                   context.l10n.tr('total'),
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 trailing: Text(
                   '$currency ${_total.toStringAsFixed(2)}',
@@ -620,7 +620,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
 
                   if (_items.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content:
                         Text(context.l10n.tr('addAtLeastOneItem')),
                       ),
