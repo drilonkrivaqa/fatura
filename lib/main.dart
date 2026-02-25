@@ -41,46 +41,14 @@ class SmartInvoiceApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
           ],
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
             useMaterial3: true,
-            scaffoldBackgroundColor: const Color(0xFFF6F8FC),
-            appBarTheme: const AppBarTheme(
-              centerTitle: false,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-            ),
-            cardTheme: CardThemeData(
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-            ),
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             colorScheme:
-                ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0), brightness: Brightness.dark),
+                ColorScheme.fromSeed(seedColor: Colors.blueGrey, brightness: Brightness.dark),
             useMaterial3: true,
-            appBarTheme: const AppBarTheme(
-              centerTitle: false,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-            ),
-            cardTheme: CardThemeData(
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
           ),
           themeMode: settingsService.currentThemeMode,
           home: const HomePage(),

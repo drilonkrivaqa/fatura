@@ -9,38 +9,30 @@ class ClientsPage extends StatefulWidget {
   const ClientsPage({super.key});
 
   @override
-  State<ClientsPage> createState() => _ClientsPageState();
+  State createState() => _ClientsPageState();
 }
 
-class _ClientsPageState extends State<ClientsPage> {
+class _ClientsPageState extends State {
   String _search = '';
 
   @override
   Widget build(BuildContext context) {
     final clients = context.watch<ClientService>().clients;
 
-    final filtered = clients
-        .where((c) => c.name.toLowerCase().contains(_search.toLowerCase()))
-        .toList();
+    final filtered = clients.where((c) => c.name.toLowerCase().contains(_search.toLowerCase())).toList();
 
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Row(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
               children: [
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: context.l10n.tr('searchClients'),
                       prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _search.isEmpty
-                          ? null
-                          : IconButton(
-                              onPressed: () => setState(() => _search = ''),
-                              icon: const Icon(Icons.close),
-                            ),
                     ),
                     onChanged: (value) => setState(() => _search = value),
                   ),
@@ -58,31 +50,18 @@ class _ClientsPageState extends State<ClientsPage> {
                 ),
               ],
             ),
-          ),
-          Expanded(
-            child: filtered.isEmpty
-                ? Center(child: Text(context.l10n.tr('noClientsYet')))
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      final client = filtered[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                            child: Text(
-                              client.name.isEmpty
-                                  ? '?'
-                                  : client.name.characters.first.toUpperCase(),
-                            ),
-                          ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: filtered.isEmpty
+                  ? Center(child: Text(context.l10n.tr('noClientsYet')))
+                  : ListView.separated(
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final client = filtered[index];
+                        return ListTile(
                           title: Text(client.name),
-                          subtitle: Text(
-                            '${client.city}, ${client.country}\n${client.email}',
-                          ),
+                          subtitle: Text('${client.city}, ${client.country}\n${client.email}'),
                           isThreeLine: true,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -93,8 +72,7 @@ class _ClientsPageState extends State<ClientsPage> {
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) =>
-                                          ClientFormPage(isEditing: true, client: client),
+                                      builder: (_) => ClientFormPage(isEditing: true, client: client),
                                     ),
                                   );
                                 },
@@ -120,19 +98,19 @@ class _ClientsPageState extends State<ClientsPage> {
                                     ),
                                   );
 
-                                  if (confirm == true && context.mounted) {
+                                  if (confirm == true) {
                                     await context.read<ClientService>().deleteClient(client.id);
                                   }
                                 },
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
