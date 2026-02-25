@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
+import '../models/company_profile.dart';
 import '../models/invoice.dart';
 import '../services/client_service.dart';
-import '../models/company_profile.dart';
 import '../services/invoice_service.dart';
 import '../services/pdf_service.dart';
 import '../services/settings_service.dart';
@@ -21,7 +22,6 @@ class InvoiceDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Typed providers
     final invoice = context.watch<InvoiceService>().findById(invoiceId);
     final company = CompanyProfile(
       id: invoice?.companyId ?? '',
@@ -40,53 +40,30 @@ class InvoiceDetailPage extends StatelessWidget {
     final settings = context.watch<SettingsService>().settings;
 
     if (invoice == null) {
-      return const Scaffold(
-        body: Center(child: Text('Invoice not found')),
+      return Scaffold(
+        body: Center(child: Text(context.l10n.tr('invoiceNotFound'))),
       );
     }
 
-    // ✅ Typed provider
     final client = context.read<ClientService>().findById(invoice.clientId);
-    final clientName = invoice.clientName.isNotEmpty
-        ? invoice.clientName
-        : client?.name ?? '';
-    final clientAddress = invoice.clientAddress.isNotEmpty
-        ? invoice.clientAddress
-        : client?.address ?? '';
-    final clientCity = invoice.clientCity.isNotEmpty
-        ? invoice.clientCity
-        : client?.city ?? '';
-    final clientCountry = invoice.clientCountry.isNotEmpty
-        ? invoice.clientCountry
-        : client?.country ?? '';
-    final clientEmail = invoice.clientEmail.isNotEmpty
-        ? invoice.clientEmail
-        : client?.email ?? '';
-    final clientPhone = invoice.clientPhone.isNotEmpty
-        ? invoice.clientPhone
-        : client?.phone ?? '';
-    final clientTaxNumber = invoice.clientTaxNumber.isNotEmpty
-        ? invoice.clientTaxNumber
-        : client?.taxNumber ?? '';
+    final clientName = invoice.clientName.isNotEmpty ? invoice.clientName : client?.name ?? '';
+    final clientAddress = invoice.clientAddress.isNotEmpty ? invoice.clientAddress : client?.address ?? '';
+    final clientCity = invoice.clientCity.isNotEmpty ? invoice.clientCity : client?.city ?? '';
+    final clientCountry = invoice.clientCountry.isNotEmpty ? invoice.clientCountry : client?.country ?? '';
+    final clientEmail = invoice.clientEmail.isNotEmpty ? invoice.clientEmail : client?.email ?? '';
+    final clientPhone = invoice.clientPhone.isNotEmpty ? invoice.clientPhone : client?.phone ?? '';
+    final clientTaxNumber = invoice.clientTaxNumber.isNotEmpty ? invoice.clientTaxNumber : client?.taxNumber ?? '';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Invoice ${invoice.invoiceNumber}'),
+        title: Text('${context.l10n.tr('invoice')} ${invoice.invoiceNumber}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: () async {
               final pdfService = PdfService();
-              final data = await pdfService.buildInvoice(
-                invoice,
-                company,
-                client,
-                settings,
-              );
-              await Printing.sharePdf(
-                bytes: data,
-                filename: '${invoice.invoiceNumber}.pdf',
-              );
+              final data = await pdfService.buildInvoice(invoice, company, client, settings);
+              await Printing.sharePdf(bytes: data, filename: '${invoice.invoiceNumber}.pdf');
             },
           ),
           IconButton(
@@ -94,11 +71,7 @@ class InvoiceDetailPage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => InvoiceFormPage(
-                    existingInvoice: invoice,
-                  ),
-                ),
+                MaterialPageRoute(builder: (_) => InvoiceFormPage(existingInvoice: invoice)),
               );
             },
           ),
@@ -107,32 +80,25 @@ class InvoiceDetailPage extends StatelessWidget {
             onPressed: () async {
               final confirmed = await showDialog<bool>(
                 context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Delete invoice'),
-                    content: const Text(
-                      'Are you sure you want to delete this invoice? This action cannot be undone.',
+                builder: (context) => AlertDialog(
+                  title: Text(context.l10n.tr('deleteInvoice')),
+                  content: Text(context.l10n.tr('deleteInvoiceConfirm')),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(context.l10n.tr('cancel')),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancel'),
-                      ),
-                      FilledButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  );
-                },
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(context.l10n.tr('delete')),
+                    ),
+                  ],
+                ),
               );
 
               if (confirmed == true) {
                 await context.read<InvoiceService>().deleteInvoice(invoice.id);
-
-                if (context.mounted) {
-                  Navigator.pop(context);
-                }
+                if (context.mounted) Navigator.pop(context);
               }
             },
           ),
@@ -148,23 +114,15 @@ class InvoiceDetailPage extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      clientName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text(clientName, style: Theme.of(context).textTheme.titleMedium),
                     Text(
                       [
                         clientAddress,
-                        [clientCity, clientCountry]
-                            .where((part) => part.isNotEmpty)
-                            .join(', '),
+                        [clientCity, clientCountry].where((part) => part.isNotEmpty).join(', '),
                         clientEmail,
                         clientPhone,
-                        if (clientTaxNumber.isNotEmpty)
-                          'Tax: $clientTaxNumber',
-                      ]
-                          .where((line) => line.isNotEmpty)
-                          .join('\n'),
+                        if (clientTaxNumber.isNotEmpty) '${context.l10n.tr('taxLabel')}: $clientTaxNumber',
+                      ].where((line) => line.isNotEmpty).join('\n'),
                     ),
                   ],
                 ),
@@ -172,55 +130,41 @@ class InvoiceDetailPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text('Invoice #: ${invoice.invoiceNumber}'),
-            Text(
-              'Date: ${invoice.date.toLocal().toString().split(' ').first}',
-            ),
-            Text(
-              'Due: ${invoice.dueDate.toLocal().toString().split(' ').first}',
-            ),
-            Text('Payment terms: ${invoice.paymentTerms}'),
+            Text('${context.l10n.tr('invoiceNumber')}: ${invoice.invoiceNumber}'),
+            Text('${context.l10n.tr('date')}: ${invoice.date.toLocal().toString().split(' ').first}'),
+            Text('${context.l10n.tr('due')}: ${invoice.dueDate.toLocal().toString().split(' ').first}'),
+            Text('${context.l10n.tr('paymentTerms')}: ${_localizedPaymentTerms(context, invoice.paymentTerms)}'),
             const SizedBox(height: 12),
-            const Text(
-              'Items',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            Text(context.l10n.tr('items'), style: const TextStyle(fontWeight: FontWeight.bold)),
             const Divider(),
             ...invoice.items.map(
-                  (item) => ListTile(
+              (item) => ListTile(
                 title: Text(item.description),
                 subtitle: Text(
-                  '${item.quantity.toStringAsFixed(2)} '
-                      '${item.unit} x '
-                      '${item.unitPrice.toStringAsFixed(2)} '
-                      '(discount ${item.discount.toStringAsFixed(1)}%)',
+                  '${item.quantity.toStringAsFixed(2)} ${item.unit} x ${item.unitPrice.toStringAsFixed(2)} '
+                  '(${context.l10n.tr('discountLabel')} ${item.discount.toStringAsFixed(1)}%)',
                 ),
-                trailing:
-                Text(item.lineTotal.toStringAsFixed(2)),
+                trailing: Text(item.lineTotal.toStringAsFixed(2)),
               ),
             ),
             const Divider(),
             ListTile(
-              title: const Text('Subtotal'),
-              trailing:
-              Text(invoice.subtotal.toStringAsFixed(2)),
+              title: Text(context.l10n.tr('subtotal')),
+              trailing: Text(invoice.subtotal.toStringAsFixed(2)),
+            ),
+            ListTile(
+              title: Text('VAT (${invoice.vatRate.toStringAsFixed(1)}%)'),
+              trailing: Text(invoice.vatAmount.toStringAsFixed(2)),
             ),
             ListTile(
               title: Text(
-                'VAT (${invoice.vatRate.toStringAsFixed(1)}%)',
-              ),
-              trailing:
-              Text(invoice.vatAmount.toStringAsFixed(2)),
-            ),
-            ListTile(
-              title: const Text(
-                'Total',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                context.l10n.tr('total'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: Text(invoice.total.toStringAsFixed(2)),
             ),
             ListTile(
-              title: const Text('Total in words'),
+              title: Text(context.l10n.tr('totalInWords')),
               subtitle: Text(invoice.totalInWords),
             ),
           ],
@@ -228,4 +172,15 @@ class InvoiceDetailPage extends StatelessWidget {
       ),
     );
   }
+}
+
+String _localizedPaymentTerms(BuildContext context, String terms) {
+  if (terms == 'due_on_receipt' || terms.toLowerCase() == 'due on receipt') {
+    return context.l10n.tr('dueOnReceipt');
+  }
+  final digits = RegExp(r'\d+').firstMatch(terms);
+  if (digits != null) {
+    return '${digits.group(0)} ${context.l10n.tr('days')}';
+  }
+  return terms;
 }

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/invoice.dart';
 import '../models/invoice_item.dart';
 import '../models/company_profile.dart';
@@ -88,7 +89,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
     } else {
       _selectedCompanyId = context.read<CompanyService>().profile?.id;
       _vatRate = settings.defaultVatRate;
-      _paymentTerms = '${settings.defaultPaymentTerms} days';
+      _paymentTerms = _paymentTermsValue(settings.defaultPaymentTerms);
       _dueDate =
           _invoiceDate.add(Duration(days: settings.defaultPaymentTerms));
       _currencyWord =
@@ -126,7 +127,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
 
   void _updateDueDateFromTerms(int days) {
     _dueDate = _invoiceDate.add(Duration(days: days));
-    _paymentTerms = days == 0 ? 'Due on receipt' : '$days days';
+    _paymentTerms = _paymentTermsValue(days);
   }
 
   @override
@@ -138,17 +139,17 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
     final currency = settings.currencySymbol;
 
     final paymentTermsOptions = {
-      'Due on receipt',
-      '7 days',
-      '14 days',
-      '30 days',
+      _paymentTermsValue(0),
+      _paymentTermsValue(7),
+      _paymentTermsValue(14),
+      _paymentTermsValue(30),
       _paymentTerms,
     }.toList();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.existingInvoice != null ? 'Edit Invoice' : 'New Invoice',
+          widget.existingInvoice != null ? context.l10n.tr('editInvoice') : context.l10n.tr('newInvoice'),
         ),
       ),
       body: Padding(
@@ -159,7 +160,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
             children: [
               DropdownButtonFormField<String>(
                 value: _selectedCompanyId,
-                decoration: const InputDecoration(labelText: 'Select company'),
+                decoration: InputDecoration(labelText: context.l10n.tr('selectCompany')),
                 items: companies
                     .map(
                       (company) => DropdownMenuItem<String>(
@@ -169,12 +170,12 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     )
                     .toList(),
                 onChanged: (val) => setState(() => _selectedCompanyId = val),
-                validator: (val) => val == null ? 'Choose company' : null,
+                validator: (val) => val == null ? context.l10n.tr('chooseCompany') : null,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _useManualClient ? null : _selectedClientId,
-                decoration: const InputDecoration(labelText: 'Select client'),
+                decoration: InputDecoration(labelText: context.l10n.tr('selectClient')),
                 items: clients
                     .map(
                       (c) => DropdownMenuItem<String>(
@@ -187,11 +188,11 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     ? null
                     : (val) => setState(() => _selectedClientId = val),
                 validator: (val) =>
-                    _useManualClient ? null : val == null ? 'Choose client' : null,
+                    _useManualClient ? null : val == null ? context.l10n.tr('chooseClient') : null,
               ),
               SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Enter client manually'),
+                title: Text(context.l10n.tr('enterClientManually')),
                 value: _useManualClient,
                 onChanged: (value) {
                   setState(() {
@@ -205,21 +206,21 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
               if (_useManualClient) ...[
                 TextFormField(
                   controller: _manualNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Client name',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.tr('clientName'),
                   ),
                   validator: (val) {
                     if (!_useManualClient) return null;
                     if (val == null || val.trim().isEmpty) {
-                      return 'Enter client name';
+                      return context.l10n.tr('enterClientName');
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _manualAddressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Address',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.tr('address'),
                   ),
                 ),
                 Row(
@@ -227,8 +228,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     Expanded(
                       child: TextFormField(
                         controller: _manualCityController,
-                        decoration: const InputDecoration(
-                          labelText: 'City',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.tr('city'),
                         ),
                       ),
                     ),
@@ -236,8 +237,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     Expanded(
                       child: TextFormField(
                         controller: _manualCountryController,
-                        decoration: const InputDecoration(
-                          labelText: 'Country',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.tr('country'),
                         ),
                       ),
                     ),
@@ -248,8 +249,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     Expanded(
                       child: TextFormField(
                         controller: _manualEmailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.tr('email'),
                         ),
                       ),
                     ),
@@ -257,8 +258,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     Expanded(
                       child: TextFormField(
                         controller: _manualPhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Phone',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.tr('phone'),
                         ),
                       ),
                     ),
@@ -266,8 +267,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                 ),
                 TextFormField(
                   controller: _manualTaxNumberController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tax number',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.tr('taxNumber'),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -278,7 +279,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                   Expanded(
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Invoice date'),
+                      title: Text(context.l10n.tr('invoiceDate')),
                       subtitle: Text(
                         DateFormat.yMMMd().format(_invoiceDate),
                       ),
@@ -305,7 +306,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                   Expanded(
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Due date'),
+                      title: Text(context.l10n.tr('dueDate')),
                       subtitle: Text(
                         DateFormat.yMMMd().format(_dueDate),
                       ),
@@ -328,12 +329,12 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
               ),
               DropdownButtonFormField<String>(
                 value: _paymentTerms,
-                decoration: const InputDecoration(labelText: 'Payment terms'),
+                decoration: InputDecoration(labelText: context.l10n.tr('paymentTerms')),
                 items: paymentTermsOptions
                     .map(
                       (option) => DropdownMenuItem(
                         value: option,
-                        child: Text(option),
+                        child: Text(_localizedPaymentTerms(context, option)),
                       ),
                     )
                     .toList(),
@@ -350,8 +351,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                 children: [
                   Expanded(
                     child: TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'VAT rate %',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.tr('vatRate'),
                       ),
                       initialValue: _vatRate.toString(),
                       keyboardType: TextInputType.number,
@@ -365,21 +366,21 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                   Expanded(
                     child: DropdownButtonFormField<InvoiceStatus>(
                       value: _status,
-                      decoration: const InputDecoration(
-                        labelText: 'Status',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.tr('status'),
                       ),
-                      items: const [
+                      items: [
                         DropdownMenuItem(
                           value: InvoiceStatus.paid,
-                          child: Text('Paid'),
+                          child: Text(context.l10n.tr('paid')),
                         ),
                         DropdownMenuItem(
                           value: InvoiceStatus.unpaid,
-                          child: Text('Unpaid'),
+                          child: Text(context.l10n.tr('unpaid')),
                         ),
                         DropdownMenuItem(
                           value: InvoiceStatus.partial,
-                          child: Text('Partial'),
+                          child: Text(context.l10n.tr('partial')),
                         ),
                       ],
                       onChanged: (val) => setState(
@@ -393,8 +394,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Items',
+                  Text(
+                    context.l10n.tr('items'),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -405,7 +406,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                       setState(() {
                         _items.add(
                           InvoiceItem(
-                            description: 'Item ${_items.length + 1}',
+                            description: '${context.l10n.tr('item')} ${_items.length + 1}',
                             quantity: 1,
                             unit: 'pcs',
                             unitPrice: 0,
@@ -417,7 +418,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                       _recalculateTotals();
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text('Add item'),
+                    label: Text(context.l10n.tr('addItem')),
                   )
                 ],
               ),
@@ -439,7 +440,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                             MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Item ${index + 1}',
+                                '${context.l10n.tr('item')} ${index + 1}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -459,8 +460,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                           ),
                           TextFormField(
                             initialValue: item.description,
-                            decoration: const InputDecoration(
-                              labelText: 'Description',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.tr('description'),
                             ),
                             onChanged: (val) {
                               _items[index] =
@@ -474,8 +475,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                                   initialValue:
                                   item.quantity.toString(),
                                   decoration:
-                                  const InputDecoration(
-                                    labelText: 'Quantity',
+                                  InputDecoration(
+                                    labelText: context.l10n.tr('quantity'),
                                   ),
                                   keyboardType:
                                   TextInputType.number,
@@ -501,8 +502,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                                 child: TextFormField(
                                   initialValue: item.unit,
                                   decoration:
-                                  const InputDecoration(
-                                    labelText: 'Unit',
+                                  InputDecoration(
+                                    labelText: context.l10n.tr('unit'),
                                   ),
                                   onChanged: (val) {
                                     _items[index] =
@@ -519,8 +520,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                                   initialValue:
                                   item.unitPrice.toString(),
                                   decoration:
-                                  const InputDecoration(
-                                    labelText: 'Unit price',
+                                  InputDecoration(
+                                    labelText: context.l10n.tr('unitPrice'),
                                   ),
                                   keyboardType:
                                   TextInputType.number,
@@ -547,8 +548,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                                   initialValue:
                                   item.discount.toString(),
                                   decoration:
-                                  const InputDecoration(
-                                    labelText: 'Discount %',
+                                  InputDecoration(
+                                    labelText: context.l10n.tr('discount'),
                                   ),
                                   keyboardType:
                                   TextInputType.number,
@@ -574,7 +575,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text(
-                              'Line total: $currency ${item.lineTotal.toStringAsFixed(2)}',
+                              '${context.l10n.tr('lineTotal')}: $currency ${item.lineTotal.toStringAsFixed(2)}',
                             ),
                           ),
                         ],
@@ -585,7 +586,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
               ),
               const Divider(),
               ListTile(
-                title: const Text('Subtotal'),
+                title: Text(context.l10n.tr('subtotal')),
                 trailing: Text(
                   '$currency ${_subtotal.toStringAsFixed(2)}',
                 ),
@@ -599,7 +600,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
               ),
               ListTile(
                 title: const Text(
-                  'Total',
+                  context.l10n.tr('total'),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 trailing: Text(
@@ -607,7 +608,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                 ),
               ),
               ListTile(
-                title: const Text('Total in words'),
+                title: Text(context.l10n.tr('totalInWords')),
                 subtitle: Text(_totalInWords),
               ),
               const SizedBox(height: 24),
@@ -621,7 +622,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content:
-                        Text('Add at least one item'),
+                        Text(context.l10n.tr('addAtLeastOneItem')),
                       ),
                     );
                     return;
@@ -764,8 +765,8 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                 },
                 child: Text(
                   widget.existingInvoice != null
-                      ? 'Update invoice'
-                      : 'Save invoice',
+                      ? context.l10n.tr('updateInvoice')
+                      : context.l10n.tr('saveInvoice'),
                 ),
               ),
             ],
@@ -775,8 +776,23 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
     );
   }
 
+
+  String _paymentTermsValue(int days) {
+    return days == 0 ? 'due_on_receipt' : '$days days';
+  }
+
+  String _localizedPaymentTerms(BuildContext context, String terms) {
+    if (terms == 'due_on_receipt' || terms.toLowerCase() == 'due on receipt') {
+      return context.l10n.tr('dueOnReceipt');
+    }
+    final digits = RegExp(r'\d+').firstMatch(terms);
+    if (digits != null) {
+      return '${digits.group(0)} ${context.l10n.tr('days')}';
+    }
+    return terms;
+  }
+
   int _extractDaysFromTerms() {
-    if (_paymentTerms.contains('Due on receipt')) return 0;
     final digits = RegExp(r'\d+').firstMatch(_paymentTerms);
     return digits != null ? int.parse(digits.group(0)!) : 0;
   }
