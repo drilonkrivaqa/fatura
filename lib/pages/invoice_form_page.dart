@@ -5,7 +5,9 @@ import 'package:uuid/uuid.dart';
 
 import '../models/invoice.dart';
 import '../models/invoice_item.dart';
+import '../models/company_profile.dart';
 import '../services/client_service.dart';
+import '../services/company_service.dart';
 import '../services/invoice_service.dart';
 import '../services/settings_service.dart';
 import '../utils/number_to_words.dart';
@@ -26,6 +28,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
   final _formKey = GlobalKey<FormState>();
 
   String? _selectedClientId;
+  String? _selectedCompanyId;
   bool _useManualClient = false;
   DateTime _invoiceDate = DateTime.now();
   DateTime _dueDate = DateTime.now();
@@ -65,6 +68,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
     if (widget.existingInvoice != null) {
       final invoice = widget.existingInvoice!;
       _selectedClientId = invoice.clientId.isNotEmpty ? invoice.clientId : null;
+      _selectedCompanyId = invoice.companyId.isNotEmpty ? invoice.companyId : null;
       _useManualClient = invoice.clientId.isEmpty;
       _invoiceDate = invoice.date;
       _dueDate = invoice.dueDate;
@@ -82,6 +86,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
       _manualPhoneController.text = invoice.clientPhone;
       _manualTaxNumberController.text = invoice.clientTaxNumber;
     } else {
+      _selectedCompanyId = context.read<CompanyService>().profile?.id;
       _vatRate = settings.defaultVatRate;
       _paymentTerms = '${settings.defaultPaymentTerms} days';
       _dueDate =
@@ -128,6 +133,7 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
   Widget build(BuildContext context) {
     // ✅ Typed providers
     final clients = context.watch<ClientService>().clients;
+    final companies = context.watch<CompanyService>().companies;
     final settings = context.watch<SettingsService>().settings;
     final currency = settings.currencySymbol;
 
@@ -151,6 +157,21 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
           key: _formKey,
           child: ListView(
             children: [
+              DropdownButtonFormField<String>(
+                value: _selectedCompanyId,
+                decoration: const InputDecoration(labelText: 'Select company'),
+                items: companies
+                    .map(
+                      (company) => DropdownMenuItem<String>(
+                        value: company.id,
+                        child: Text(company.name),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (val) => setState(() => _selectedCompanyId = val),
+                validator: (val) => val == null ? 'Choose company' : null,
+              ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _useManualClient ? null : _selectedClientId,
                 decoration: const InputDecoration(labelText: 'Select client'),
@@ -632,11 +653,46 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                           );
                         })();
 
+                  CompanyProfile? selectedCompany;
+                  for (final company in companies) {
+                    if (company.id == _selectedCompanyId) {
+                      selectedCompany = company;
+                      break;
+                    }
+                  }
+                  final companySnapshot = selectedCompany ??
+                      CompanyProfile(
+                        id: '',
+                        name: '',
+                        address: '',
+                        city: '',
+                        country: '',
+                        phone: '',
+                        email: '',
+                        taxNumber: '',
+                        bankName: '',
+                        iban: '',
+                        website: '',
+                        logoPath: '',
+                      );
+
                   final settingsService = context.read<SettingsService>();
                   final invoiceService = context.read<InvoiceService>();
 
                   if (widget.existingInvoice != null) {
                     final updatedInvoice = widget.existingInvoice!.copyWith(
+                      companyId: companySnapshot.id,
+                      companyName: companySnapshot.name,
+                      companyAddress: companySnapshot.address,
+                      companyCity: companySnapshot.city,
+                      companyCountry: companySnapshot.country,
+                      companyPhone: companySnapshot.phone,
+                      companyEmail: companySnapshot.email,
+                      companyTaxNumber: companySnapshot.taxNumber,
+                      companyBankName: companySnapshot.bankName,
+                      companyIban: companySnapshot.iban,
+                      companyWebsite: companySnapshot.website,
+                      companyLogoPath: companySnapshot.logoPath,
                       clientId: clientSnapshot.id,
                       clientName: clientSnapshot.name,
                       clientAddress: clientSnapshot.address,
@@ -666,6 +722,18 @@ class _InvoiceFormPageState extends State<InvoiceFormPage> {
                     final invoice = Invoice(
                       id: const Uuid().v4(),
                       invoiceNumber: invoiceNumber,
+                      companyId: companySnapshot.id,
+                      companyName: companySnapshot.name,
+                      companyAddress: companySnapshot.address,
+                      companyCity: companySnapshot.city,
+                      companyCountry: companySnapshot.country,
+                      companyPhone: companySnapshot.phone,
+                      companyEmail: companySnapshot.email,
+                      companyTaxNumber: companySnapshot.taxNumber,
+                      companyBankName: companySnapshot.bankName,
+                      companyIban: companySnapshot.iban,
+                      companyWebsite: companySnapshot.website,
+                      companyLogoPath: companySnapshot.logoPath,
                       clientId: clientSnapshot.id,
                       clientName: clientSnapshot.name,
                       clientAddress: clientSnapshot.address,
