@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'l10n/app_localizations.dart';
 import 'pages/home_page.dart';
 import 'services/client_service.dart';
 import 'services/company_service.dart';
@@ -41,6 +43,13 @@ class SmartInvoiceApp extends StatelessWidget {
             useMaterial3: true,
           ),
           themeMode: settingsService.currentThemeMode,
+          locale: settingsService.currentLocale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           home: const HomePage(),
         ),
       ),

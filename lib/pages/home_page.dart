@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import 'clients_page.dart';
 import 'dashboard_page.dart';
 import 'invoices_page.dart';
@@ -17,7 +18,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = const [
+    final l10n = context.l10n;
+    const pages = [
       DashboardPage(),
       InvoicesPage(),
       ClientsPage(),
@@ -26,7 +28,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SmartInvoice'),
+        title: Text(l10n.tr('appTitle')),
       ),
       body: IndexedStack(
         index: _selectedIndex,
@@ -39,11 +41,20 @@ class _HomePageState extends State<HomePage> {
             _selectedIndex = index;
           });
         },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
-          NavigationDestination(icon: Icon(Icons.receipt_long), label: 'Invoices'),
-          NavigationDestination(icon: Icon(Icons.people_alt_outlined), label: 'Clients'),
-          NavigationDestination(icon: Icon(Icons.settings_outlined), label: 'Settings'),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.dashboard_outlined),
+            label: l10n.tr('dashboard'),
+          ),
+          NavigationDestination(icon: const Icon(Icons.receipt_long), label: l10n.tr('invoices')),
+          NavigationDestination(
+            icon: const Icon(Icons.people_alt_outlined),
+            label: l10n.tr('clients'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            label: l10n.tr('settings'),
+          ),
         ],
       ),
     );

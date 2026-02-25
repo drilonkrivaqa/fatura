@@ -6,6 +6,7 @@ class AppSettings {
   final int defaultPaymentTerms;
   final int lastInvoiceNumber;
   final String themeMode; // allowed values: 'system', 'light', 'dark'
+  final String languageCode; // allowed values: 'en', 'sq'
 
   AppSettings({
     required this.currencySymbol,
@@ -13,6 +14,7 @@ class AppSettings {
     required this.defaultPaymentTerms,
     required this.lastInvoiceNumber,
     required this.themeMode,
+    required this.languageCode,
   });
 
   AppSettings copyWith({
@@ -21,6 +23,7 @@ class AppSettings {
     int? defaultPaymentTerms,
     int? lastInvoiceNumber,
     String? themeMode,
+    String? languageCode,
   }) {
     return AppSettings(
       currencySymbol: currencySymbol ?? this.currencySymbol,
@@ -28,6 +31,7 @@ class AppSettings {
       defaultPaymentTerms: defaultPaymentTerms ?? this.defaultPaymentTerms,
       lastInvoiceNumber: lastInvoiceNumber ?? this.lastInvoiceNumber,
       themeMode: themeMode ?? this.themeMode,
+      languageCode: languageCode ?? this.languageCode,
     );
   }
 }
@@ -43,6 +47,7 @@ class AppSettingsAdapter extends TypeAdapter<AppSettings> {
     final defaultPaymentTerms = reader.readInt();
     final lastInvoiceNumber = reader.readInt();
     final themeMode = reader.availableBytes > 0 ? reader.readString() : 'system';
+    final languageCode = reader.availableBytes > 0 ? reader.readString() : 'en';
 
     return AppSettings(
       currencySymbol: currencySymbol,
@@ -50,6 +55,7 @@ class AppSettingsAdapter extends TypeAdapter<AppSettings> {
       defaultPaymentTerms: defaultPaymentTerms,
       lastInvoiceNumber: lastInvoiceNumber,
       themeMode: themeMode,
+      languageCode: languageCode,
     );
   }
 
@@ -60,6 +66,7 @@ class AppSettingsAdapter extends TypeAdapter<AppSettings> {
       ..writeDouble(obj.defaultVatRate)
       ..writeInt(obj.defaultPaymentTerms)
       ..writeInt(obj.lastInvoiceNumber)
-      ..writeString(obj.themeMode);
+      ..writeString(obj.themeMode)
+      ..writeString(obj.languageCode);
   }
 }
