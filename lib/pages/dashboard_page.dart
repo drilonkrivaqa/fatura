@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/invoice.dart';
-import '../l10n/app_localizations.dart';
 import '../services/client_service.dart';
 import '../services/invoice_service.dart';
 
@@ -27,7 +26,7 @@ class DashboardPage extends StatelessWidget {
       child: ListView(
         children: [
           Text(
-            context.l10n.tr('overview'),
+            'Overview',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 12),
@@ -36,27 +35,27 @@ class DashboardPage extends StatelessWidget {
             runSpacing: 12,
             children: [
               _StatCard(
-                title: context.l10n.tr('clients'),
+                title: 'Clients',
                 value: clients.length.toString(),
                 icon: Icons.people_alt,
               ),
               _StatCard(
-                title: context.l10n.tr('invoices'),
+                title: 'Invoices',
                 value: invoices.length.toString(),
                 icon: Icons.receipt_long,
               ),
               _StatCard(
-                title: context.l10n.tr('paid'),
+                title: 'Paid',
                 value: paidCount.toString(),
                 icon: Icons.check_circle_outline,
               ),
               _StatCard(
-                title: context.l10n.tr('unpaid'),
+                title: 'Unpaid',
                 value: unpaidCount.toString(),
                 icon: Icons.warning_amber_rounded,
               ),
               _StatCard(
-                title: context.l10n.tr('totalBilled'),
+                title: 'Total billed',
                 value: totalAmount.toStringAsFixed(2),
                 icon: Icons.attach_money,
               ),
@@ -64,7 +63,7 @@ class DashboardPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            context.l10n.tr('recentInvoices'),
+            'Recent invoices',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),

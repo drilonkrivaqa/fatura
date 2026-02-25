@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../l10n/app_localizations.dart';
 import '../models/invoice.dart';
 
 class StatusChip extends StatelessWidget {
@@ -35,7 +34,7 @@ class StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      label: Text(context.l10n.statusLabel(status), style: TextStyle(color: _textColor())),
+      label: Text(status.name.toUpperCase(), style: TextStyle(color: _textColor())),
       backgroundColor: _backgroundColor(context),
     );
   }
