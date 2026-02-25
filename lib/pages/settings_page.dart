@@ -193,7 +193,7 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListView(
             children: [
               Text(
-                'Company profiles',
+                context.l10n.tr('companyProfiles'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
@@ -202,7 +202,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _editingCompanyId,
-                      hint: const Text('Select company to edit'),
+                      hint: Text(context.l10n.tr('selectCompanyToEdit')),
                       items: companyService.companies
                           .map(
                             (c) => DropdownMenuItem<String>(
@@ -230,7 +230,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   OutlinedButton.icon(
                     onPressed: () => setState(_resetCompanyForm),
                     icon: const Icon(Icons.add_business_outlined),
-                    label: const Text('New'),
+                    label: Text(context.l10n.tr('new')),
                   ),
                 ],
               ),
@@ -251,33 +251,33 @@ class _SettingsPageState extends State<SettingsPage> {
                   TextButton.icon(
                     onPressed: _pickLogo,
                     icon: const Icon(Icons.upload),
-                    label: const Text('Upload logo'),
+                    label: Text(context.l10n.tr('uploadLogo')),
                   )
                 ],
               ),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Company name'),
+                decoration: InputDecoration(labelText: context.l10n.tr('companyName')),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'Required' : null,
+                    val == null || val.isEmpty ? context.l10n.tr('required') : null,
               ),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Address'),
+                decoration: InputDecoration(labelText: context.l10n.tr('address')),
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _cityController,
-                      decoration: const InputDecoration(labelText: 'City'),
+                      decoration: InputDecoration(labelText: context.l10n.tr('city')),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _countryController,
-                      decoration: const InputDecoration(labelText: 'Country'),
+                      decoration: InputDecoration(labelText: context.l10n.tr('country')),
                     ),
                   ),
                 ],
@@ -287,25 +287,25 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _phoneController,
-                      decoration: const InputDecoration(labelText: 'Phone'),
+                      decoration: InputDecoration(labelText: context.l10n.tr('phone')),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
                       controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
+                      decoration: InputDecoration(labelText: context.l10n.tr('email')),
                     ),
                   ),
                 ],
               ),
               TextFormField(
                 controller: _taxController,
-                decoration: const InputDecoration(labelText: 'Tax number'),
+                decoration: InputDecoration(labelText: context.l10n.tr('taxNumber')),
               ),
               TextFormField(
                 controller: _bankController,
-                decoration: const InputDecoration(labelText: 'Bank name'),
+                decoration: InputDecoration(labelText: context.l10n.tr('bankName')),
               ),
               TextFormField(
                 controller: _ibanController,
@@ -313,7 +313,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               TextFormField(
                 controller: _websiteController,
-                decoration: const InputDecoration(labelText: 'Website'),
+                decoration: InputDecoration(labelText: context.l10n.tr('website')),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -328,15 +328,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Company saved')),
+                          SnackBar(content: Text(context.l10n.tr('companySaved'))),
                         );
                       }
                     },
                     icon: const Icon(Icons.save_outlined),
                     label: Text(
                       _editingCompanyId == null
-                          ? 'Save company'
-                          : 'Update company',
+                          ? context.l10n.tr('saveCompany')
+                          : context.l10n.tr('updateCompany'),
                     ),
                   ),
                   OutlinedButton.icon(
@@ -348,12 +348,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       if (mounted) {
                         setState(() => _editingCompanyId = company.id);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Saved as new company')),
+                          SnackBar(content: Text(context.l10n.tr('savedAsNewCompany'))),
                         );
                       }
                     },
                     icon: const Icon(Icons.copy_outlined),
-                    label: const Text('Save as new'),
+                    label: Text(context.l10n.tr('saveAsNew')),
                   ),
                   if (_editingCompanyId != null)
                     OutlinedButton.icon(
@@ -362,18 +362,18 @@ class _SettingsPageState extends State<SettingsPage> {
                         final shouldDelete = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Delete company'),
+                            title: Text(context.l10n.tr('deleteCompany')),
                             content: Text(
-                              'Delete "$companyName"? Existing invoices keep their saved company snapshot.',
+                              context.l10n.trf('deleteCompanyConfirm', {'name': companyName}),
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
+                                child: Text(context.l10n.tr('cancel')),
                               ),
                               FilledButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Delete'),
+                                child: Text(context.l10n.tr('delete')),
                               ),
                             ],
                           ),
@@ -384,13 +384,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         }
                       },
                       icon: const Icon(Icons.delete_outline),
-                      label: const Text('Delete company'),
+                      label: Text(context.l10n.tr('deleteCompany')),
                     ),
                 ],
               ),
               const SizedBox(height: 20),
               Text(
-                'Defaults',
+                context.l10n.tr('defaults'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
@@ -399,8 +399,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _currencyController,
-                      decoration: const InputDecoration(
-                        labelText: 'Currency symbol',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.tr('currencySymbol'),
                       ),
                     ),
                   ),
@@ -408,8 +408,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _vatController,
-                      decoration: const InputDecoration(
-                        labelText: 'Default VAT %',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.tr('defaultVat'),
                       ),
                       keyboardType: TextInputType.number,
                     ),
@@ -418,8 +418,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: TextFormField(
                       controller: _termsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Payment terms (days)',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.tr('paymentTermsDays'),
                       ),
                       keyboardType: TextInputType.number,
                     ),
@@ -446,12 +446,12 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Appearance / Theme',
+                context.l10n.tr('appearanceTheme'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
               RadioListTile<String>(
-                title: const Text('System'),
+                title: Text(context.l10n.tr('system')),
                 value: 'system',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -461,7 +461,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
               RadioListTile<String>(
-                title: const Text('Light'),
+                title: Text(context.l10n.tr('light')),
                 value: 'light',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -471,7 +471,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
               RadioListTile<String>(
-                title: const Text('Dark'),
+                title: Text(context.l10n.tr('dark')),
                 value: 'dark',
                 groupValue: settingsService.settings.themeMode,
                 onChanged: (value) {
@@ -486,11 +486,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   await _saveDefaults(settingsService);
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Defaults saved')),
+                      SnackBar(content: Text(context.l10n.tr('defaultsSaved'))),
                     );
                   }
                 },
-                child: const Text('Save defaults'),
+                child: Text(context.l10n.tr('saveDefaults')),
               ),
             ],
           ),
