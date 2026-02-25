@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 
 class CompanyProfile {
+  final String id;
   final String name;
   final String address;
   final String city;
@@ -14,6 +15,7 @@ class CompanyProfile {
   final String logoPath;
 
   CompanyProfile({
+    required this.id,
     required this.name,
     required this.address,
     required this.city,
@@ -28,6 +30,7 @@ class CompanyProfile {
   });
 
   CompanyProfile copyWith({
+    String? id,
     String? name,
     String? address,
     String? city,
@@ -41,6 +44,7 @@ class CompanyProfile {
     String? logoPath,
   }) {
     return CompanyProfile(
+      id: id ?? this.id,
       name: name ?? this.name,
       address: address ?? this.address,
       city: city ?? this.city,
@@ -62,18 +66,32 @@ class CompanyProfileAdapter extends TypeAdapter<CompanyProfile> {
 
   @override
   CompanyProfile read(BinaryReader reader) {
+    final name = reader.readString();
+    final address = reader.readString();
+    final city = reader.readString();
+    final country = reader.readString();
+    final phone = reader.readString();
+    final email = reader.readString();
+    final taxNumber = reader.readString();
+    final bankName = reader.readString();
+    final iban = reader.readString();
+    final website = reader.readString();
+    final logoPath = reader.readString();
+    final id = reader.availableBytes > 0 ? reader.readString() : '';
+
     return CompanyProfile(
-      name: reader.readString(),
-      address: reader.readString(),
-      city: reader.readString(),
-      country: reader.readString(),
-      phone: reader.readString(),
-      email: reader.readString(),
-      taxNumber: reader.readString(),
-      bankName: reader.readString(),
-      iban: reader.readString(),
-      website: reader.readString(),
-      logoPath: reader.readString(),
+      id: id,
+      name: name,
+      address: address,
+      city: city,
+      country: country,
+      phone: phone,
+      email: email,
+      taxNumber: taxNumber,
+      bankName: bankName,
+      iban: iban,
+      website: website,
+      logoPath: logoPath,
     );
   }
 
@@ -90,6 +108,7 @@ class CompanyProfileAdapter extends TypeAdapter<CompanyProfile> {
       ..writeString(obj.bankName)
       ..writeString(obj.iban)
       ..writeString(obj.website)
-      ..writeString(obj.logoPath);
+      ..writeString(obj.logoPath)
+      ..writeString(obj.id);
   }
 }

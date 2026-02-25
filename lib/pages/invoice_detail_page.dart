@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/invoice.dart';
 import '../services/client_service.dart';
-import '../services/company_service.dart';
+import '../models/company_profile.dart';
 import '../services/invoice_service.dart';
 import '../services/pdf_service.dart';
 import '../services/settings_service.dart';
@@ -23,7 +23,20 @@ class InvoiceDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // ✅ Typed providers
     final invoice = context.watch<InvoiceService>().findById(invoiceId);
-    final company = context.watch<CompanyService>().profile;
+    final company = CompanyProfile(
+      id: invoice?.companyId ?? '',
+      name: invoice?.companyName ?? '',
+      address: invoice?.companyAddress ?? '',
+      city: invoice?.companyCity ?? '',
+      country: invoice?.companyCountry ?? '',
+      phone: invoice?.companyPhone ?? '',
+      email: invoice?.companyEmail ?? '',
+      taxNumber: invoice?.companyTaxNumber ?? '',
+      bankName: invoice?.companyBankName ?? '',
+      iban: invoice?.companyIban ?? '',
+      website: invoice?.companyWebsite ?? '',
+      logoPath: invoice?.companyLogoPath ?? '',
+    );
     final settings = context.watch<SettingsService>().settings;
 
     if (invoice == null) {

@@ -7,6 +7,18 @@ enum InvoiceStatus { paid, unpaid, partial }
 class Invoice {
   final String id;
   final String invoiceNumber;
+  final String companyId;
+  final String companyName;
+  final String companyAddress;
+  final String companyCity;
+  final String companyCountry;
+  final String companyPhone;
+  final String companyEmail;
+  final String companyTaxNumber;
+  final String companyBankName;
+  final String companyIban;
+  final String companyWebsite;
+  final String companyLogoPath;
   final String clientId;
   final String clientName;
   final String clientAddress;
@@ -30,6 +42,18 @@ class Invoice {
   Invoice({
     required this.id,
     required this.invoiceNumber,
+    required this.companyId,
+    required this.companyName,
+    required this.companyAddress,
+    required this.companyCity,
+    required this.companyCountry,
+    required this.companyPhone,
+    required this.companyEmail,
+    required this.companyTaxNumber,
+    required this.companyBankName,
+    required this.companyIban,
+    required this.companyWebsite,
+    required this.companyLogoPath,
     required this.clientId,
     required this.clientName,
     required this.clientAddress,
@@ -54,6 +78,18 @@ class Invoice {
   Invoice copyWith({
     String? id,
     String? invoiceNumber,
+    String? companyId,
+    String? companyName,
+    String? companyAddress,
+    String? companyCity,
+    String? companyCountry,
+    String? companyPhone,
+    String? companyEmail,
+    String? companyTaxNumber,
+    String? companyBankName,
+    String? companyIban,
+    String? companyWebsite,
+    String? companyLogoPath,
     String? clientId,
     String? clientName,
     String? clientAddress,
@@ -77,6 +113,18 @@ class Invoice {
     return Invoice(
       id: id ?? this.id,
       invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+      companyId: companyId ?? this.companyId,
+      companyName: companyName ?? this.companyName,
+      companyAddress: companyAddress ?? this.companyAddress,
+      companyCity: companyCity ?? this.companyCity,
+      companyCountry: companyCountry ?? this.companyCountry,
+      companyPhone: companyPhone ?? this.companyPhone,
+      companyEmail: companyEmail ?? this.companyEmail,
+      companyTaxNumber: companyTaxNumber ?? this.companyTaxNumber,
+      companyBankName: companyBankName ?? this.companyBankName,
+      companyIban: companyIban ?? this.companyIban,
+      companyWebsite: companyWebsite ?? this.companyWebsite,
+      companyLogoPath: companyLogoPath ?? this.companyLogoPath,
       clientId: clientId ?? this.clientId,
       clientName: clientName ?? this.clientName,
       clientAddress: clientAddress ?? this.clientAddress,
@@ -147,9 +195,34 @@ class InvoiceAdapter extends TypeAdapter<Invoice> {
     final clientEmail = reader.availableBytes > 0 ? reader.readString() : '';
     final clientPhone = reader.availableBytes > 0 ? reader.readString() : '';
     final clientTaxNumber = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyId = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyName = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyAddress = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyCity = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyCountry = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyPhone = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyEmail = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyTaxNumber = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyBankName = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyIban = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyWebsite = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyLogoPath = reader.availableBytes > 0 ? reader.readString() : '';
+
     return Invoice(
       id: id,
       invoiceNumber: invoiceNumber,
+      companyId: companyId,
+      companyName: companyName,
+      companyAddress: companyAddress,
+      companyCity: companyCity,
+      companyCountry: companyCountry,
+      companyPhone: companyPhone,
+      companyEmail: companyEmail,
+      companyTaxNumber: companyTaxNumber,
+      companyBankName: companyBankName,
+      companyIban: companyIban,
+      companyWebsite: companyWebsite,
+      companyLogoPath: companyLogoPath,
       clientId: clientId,
       clientName: clientName,
       clientAddress: clientAddress,
@@ -199,6 +272,18 @@ class InvoiceAdapter extends TypeAdapter<Invoice> {
       ..writeString(obj.clientCountry)
       ..writeString(obj.clientEmail)
       ..writeString(obj.clientPhone)
-      ..writeString(obj.clientTaxNumber);
+      ..writeString(obj.clientTaxNumber)
+      ..writeString(obj.companyId)
+      ..writeString(obj.companyName)
+      ..writeString(obj.companyAddress)
+      ..writeString(obj.companyCity)
+      ..writeString(obj.companyCountry)
+      ..writeString(obj.companyPhone)
+      ..writeString(obj.companyEmail)
+      ..writeString(obj.companyTaxNumber)
+      ..writeString(obj.companyBankName)
+      ..writeString(obj.companyIban)
+      ..writeString(obj.companyWebsite)
+      ..writeString(obj.companyLogoPath);
   }
 }

@@ -2,18 +2,33 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/company_profile.dart';
 import 'hive_service.dart';
 
 class CompanyService extends ChangeNotifier {
-  CompanyProfile? _profile;
+  List<CompanyProfile> _companies = [];
+  String? _selectedCompanyId;
 
-  CompanyProfile? get profile => _profile;
+  List<CompanyProfile> get companies => List.unmodifiable(_companies);
+
+  CompanyProfile? get profile {
+    if (_companies.isEmpty) {
+      return null;
+    }
+    if (_selectedCompanyId == null) {
+      return _companies.first;
+    }
+    for (final company in _companies) {
+      if (company.id == _selectedCompanyId) return company;
+    }
+    return _companies.first;
+  }
 
   CompanyService() {
     loadProfile();
@@ -21,20 +36,74 @@ class CompanyService extends ChangeNotifier {
 
   Future<void> loadProfile() async {
     final box = HiveService.companyBox();
-    if (box.isNotEmpty) {
-      _profile = box.getAt(0);
+    final existingCompanies = box.values.toList();
+    final hadMissingIds = existingCompanies.any((company) => company.id.isEmpty);
+    _companies = existingCompanies
+        .map(
+          (company) => company.id.isEmpty
+              ? company.copyWith(id: const Uuid().v4())
+              : company,
+        )
+        .toList();
+
+    if (_companies.isNotEmpty) {
+      if (hadMissingIds) {
+        await box.clear();
+        for (final company in _companies) {
+          await box.add(company);
+        }
+      }
+      _selectedCompanyId = _companies.first.id;
     }
+
     notifyListeners();
   }
 
-  Future<void> updateProfile(CompanyProfile profile) async {
-    final box = HiveService.companyBox();
-    if (box.isEmpty) {
-      await box.add(profile);
+  Future<void> upsertCompany(
+    CompanyProfile company, {
+    bool setAsSelected = true,
+  }) async {
+    final id = company.id.isEmpty ? const Uuid().v4() : company.id;
+    final normalized = company.copyWith(id: id);
+
+    final index = _companies.indexWhere((c) => c.id == id);
+    if (index >= 0) {
+      _companies[index] = normalized;
     } else {
-      await box.putAt(0, profile);
+      _companies.add(normalized);
     }
-    _profile = profile;
+
+    final box = HiveService.companyBox();
+    await box.clear();
+    for (final currentCompany in _companies) {
+      await box.add(currentCompany);
+    }
+
+    if (setAsSelected) {
+      _selectedCompanyId = id;
+    }
+
+    notifyListeners();
+  }
+
+  void selectCompany(String? id) {
+    _selectedCompanyId = id;
+    notifyListeners();
+  }
+
+  Future<void> deleteCompany(String id) async {
+    _companies.removeWhere((c) => c.id == id);
+
+    final box = HiveService.companyBox();
+    await box.clear();
+    for (final currentCompany in _companies) {
+      await box.add(currentCompany);
+    }
+
+    if (_selectedCompanyId == id) {
+      _selectedCompanyId = _companies.isEmpty ? null : _companies.first.id;
+    }
+
     notifyListeners();
   }
 
