@@ -23,8 +23,11 @@ class InvoiceDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // ✅ Typed providers
     final invoice = context.watch<InvoiceService>().findById(invoiceId);
-    final company = context.watch<CompanyService>().profile;
+    final companyService = context.watch<CompanyService>();
     final settings = context.watch<SettingsService>().settings;
+    final company = invoice != null
+        ? companyService.findById(invoice.companyId) ?? companyService.selectedCompany
+        : companyService.selectedCompany;
 
     if (invoice == null) {
       return const Scaffold(

@@ -7,6 +7,7 @@ enum InvoiceStatus { paid, unpaid, partial }
 class Invoice {
   final String id;
   final String invoiceNumber;
+  final String companyId;
   final String clientId;
   final String clientName;
   final String clientAddress;
@@ -30,6 +31,7 @@ class Invoice {
   Invoice({
     required this.id,
     required this.invoiceNumber,
+    required this.companyId,
     required this.clientId,
     required this.clientName,
     required this.clientAddress,
@@ -54,6 +56,7 @@ class Invoice {
   Invoice copyWith({
     String? id,
     String? invoiceNumber,
+    String? companyId,
     String? clientId,
     String? clientName,
     String? clientAddress,
@@ -77,6 +80,7 @@ class Invoice {
     return Invoice(
       id: id ?? this.id,
       invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+      companyId: companyId ?? this.companyId,
       clientId: clientId ?? this.clientId,
       clientName: clientName ?? this.clientName,
       clientAddress: clientAddress ?? this.clientAddress,
@@ -147,9 +151,11 @@ class InvoiceAdapter extends TypeAdapter<Invoice> {
     final clientEmail = reader.availableBytes > 0 ? reader.readString() : '';
     final clientPhone = reader.availableBytes > 0 ? reader.readString() : '';
     final clientTaxNumber = reader.availableBytes > 0 ? reader.readString() : '';
+    final companyId = reader.availableBytes > 0 ? reader.readString() : '';
     return Invoice(
       id: id,
       invoiceNumber: invoiceNumber,
+      companyId: companyId,
       clientId: clientId,
       clientName: clientName,
       clientAddress: clientAddress,
@@ -199,6 +205,7 @@ class InvoiceAdapter extends TypeAdapter<Invoice> {
       ..writeString(obj.clientCountry)
       ..writeString(obj.clientEmail)
       ..writeString(obj.clientPhone)
-      ..writeString(obj.clientTaxNumber);
+      ..writeString(obj.clientTaxNumber)
+      ..writeString(obj.companyId);
   }
 }

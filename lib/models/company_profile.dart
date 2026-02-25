@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 
 class CompanyProfile {
+  final String id;
   final String name;
   final String address;
   final String city;
@@ -14,6 +15,7 @@ class CompanyProfile {
   final String logoPath;
 
   CompanyProfile({
+    required this.id,
     required this.name,
     required this.address,
     required this.city,
@@ -28,6 +30,7 @@ class CompanyProfile {
   });
 
   CompanyProfile copyWith({
+    String? id,
     String? name,
     String? address,
     String? city,
@@ -41,6 +44,7 @@ class CompanyProfile {
     String? logoPath,
   }) {
     return CompanyProfile(
+      id: id ?? this.id,
       name: name ?? this.name,
       address: address ?? this.address,
       city: city ?? this.city,
@@ -62,18 +66,32 @@ class CompanyProfileAdapter extends TypeAdapter<CompanyProfile> {
 
   @override
   CompanyProfile read(BinaryReader reader) {
+    final legacyName = reader.readString();
+    final legacyAddress = reader.readString();
+    final legacyCity = reader.readString();
+    final legacyCountry = reader.readString();
+    final legacyPhone = reader.readString();
+    final legacyEmail = reader.readString();
+    final legacyTaxNumber = reader.readString();
+    final legacyBankName = reader.readString();
+    final legacyIban = reader.readString();
+    final legacyWebsite = reader.readString();
+    final legacyLogoPath = reader.readString();
+    final storedId = reader.availableBytes > 0 ? reader.readString() : '';
+
     return CompanyProfile(
-      name: reader.readString(),
-      address: reader.readString(),
-      city: reader.readString(),
-      country: reader.readString(),
-      phone: reader.readString(),
-      email: reader.readString(),
-      taxNumber: reader.readString(),
-      bankName: reader.readString(),
-      iban: reader.readString(),
-      website: reader.readString(),
-      logoPath: reader.readString(),
+      id: storedId.isNotEmpty ? storedId : _legacyId(legacyName, legacyTaxNumber),
+      name: legacyName,
+      address: legacyAddress,
+      city: legacyCity,
+      country: legacyCountry,
+      phone: legacyPhone,
+      email: legacyEmail,
+      taxNumber: legacyTaxNumber,
+      bankName: legacyBankName,
+      iban: legacyIban,
+      website: legacyWebsite,
+      logoPath: legacyLogoPath,
     );
   }
 
@@ -90,6 +108,12 @@ class CompanyProfileAdapter extends TypeAdapter<CompanyProfile> {
       ..writeString(obj.bankName)
       ..writeString(obj.iban)
       ..writeString(obj.website)
-      ..writeString(obj.logoPath);
+      ..writeString(obj.logoPath)
+      ..writeString(obj.id);
+  }
+
+  String _legacyId(String name, String taxNumber) {
+    final basis = '${name.trim()}-${taxNumber.trim()}';
+    return basis.isNotEmpty ? basis.hashCode.toString() : 'company-default';
   }
 }
